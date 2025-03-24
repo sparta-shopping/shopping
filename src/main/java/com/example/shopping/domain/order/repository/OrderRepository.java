@@ -1,0 +1,7 @@
+package com.example.shopping.domain.order.repository;
+
+import com.example.shopping.domain.order.entity.Order;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface OrderRepository extends JpaRepository<Order, Long>, OrderRepositoryQuery{
+}
