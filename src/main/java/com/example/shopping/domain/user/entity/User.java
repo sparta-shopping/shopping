@@ -7,10 +7,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @Getter
 @Entity
-@Table(name = "users")
+@Table(name = "userss")
 public class User extends TimeStamped {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,4 +24,12 @@ public class User extends TimeStamped {
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    public User(String email, String password, String name, String address, UserRole role) {
+        this.email = email;
+        this.password = password;
+        this.name = name;
+        this.address = address;
+        this.role = role;
+    }
 }

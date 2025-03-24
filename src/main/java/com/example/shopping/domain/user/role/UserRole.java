@@ -1,6 +1,35 @@
 package com.example.shopping.domain.user.role;
 
-public enum UserRole {
-    USER,
-    ADMIN
+import com.example.shopping.common.exception.ErrorCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Arrays;
+
+
+@RequiredArgsConstructor
+@Getter
+public enum UserRole implements GrantedAuthority {
+    ROLE_USER(Authority.USER),
+    ROLE_ADMIN(Authority.ADMIN);
+
+    private final String userRole;
+
+    public static UserRole of(String role) {
+        return Arrays.stream(UserRole.values())
+                .filter(r -> r.name().equalsIgnoreCase(role))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(ErrorCode.INVALID_USER_ROLE.getStatus()));
+    }
+
+    @Override
+    public String getAuthority() { return name();    }
+
+    public static class Authority {
+        public static final String USER = "USER";
+        public static final String ADMIN = "ADMIN";
+    }
 }
