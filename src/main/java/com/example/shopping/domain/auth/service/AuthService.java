@@ -28,8 +28,6 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
-    private final RedisTemplate<String, String> redisTemplate;
-    private final RefreshTokenRepository refreshTokenRepository;
 
     @Transactional
     public SignupResponseDto signUp(@Valid SignupRequestDto signupRequestDto) {
@@ -75,30 +73,6 @@ public class AuthService {
         return new SigninResponseDto(accessToken);
     }
 
-    @Transactional(readOnly = true)
-    public RefreshToken getRefreshToken(String accessToken) {
-        RefreshToken refreshToken = refreshTokenRepository.findByAccessToken(accessToken).orElseThrow(
-                ()-> new ResponseStatusException(INVALID_TOKEN.getStatus(),INVALID_TOKEN.getMessage()));
-        return refreshToken;
-    }
 
-    @Transactional
-    public void removeRefreshToken(String accessToken) {
-        refreshTokenRepository.findByAccessToken(accessToken)
-                .ifPresent(refreshTokenRepository::delete);
-    }
-
-    @Transactional
-    public String reCreateAccessToken(String originAccessToken, RefreshToken refreshToken) {
-        Long userId = refreshToken.getId();
-        User user = userRepository.findById(userId).orElseThrow(
-                ()-> new ResponseStatusException(USER_NOT_FOUND.getStatus(),USER_NOT_FOUND.getMessage()));
-        String newAccessToken = jwtUtil.createAccessToken(user.getId(),user.getEmail(),user.getRole(),user.getName(),user.getAddress());
-
-        removeRefreshToken(originAccessToken);
-        refreshTokenRepository.save(new RefreshToken(userId,newAccessToken,refreshToken.getRefreshToken()));
-        return newAccessToken;
-
-    }
 
 }

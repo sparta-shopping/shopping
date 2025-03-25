@@ -2,6 +2,7 @@ package com.example.shopping.common.util;
 
 
 import com.example.shopping.common.dto.AuthUser;
+import com.example.shopping.domain.auth.entity.RefreshToken;
 import com.example.shopping.domain.user.role.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -50,6 +51,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             } catch (ExpiredJwtException e) {
                 log.error("Expired JWT token, 만료된 JWT token 입니다.", e);
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "만료된 JWT 토큰입니다.");
+                RefreshToken refreshToken = jwtUtil.getRefreshToken(jwt);
+                jwtUtil.reCreateAccessToken(jwt,refreshToken);
+
             } catch (UnsupportedJwtException e) {
                 log.error("Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다.", e);
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, "지원되지 않는 JWT 토큰입니다.");
