@@ -9,20 +9,11 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SignupRequestDto {
-
-    //이패넴주롤
+public class SigninRequestDto {
 
     @NotBlank
     @Email
     private String email;
     @NotBlank
     private String password;
-    @NotBlank
-    private String name;
-    @NotBlank
-    private String address;
-    @NotBlank
-    private String role;
-
 }

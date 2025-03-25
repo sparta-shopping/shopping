@@ -1,7 +1,9 @@
 package com.example.shopping.domain.auth.controller;
 
+import com.example.shopping.domain.auth.dto.request.SigninRequestDto;
 import com.example.shopping.domain.auth.dto.request.SignupRequestDto;
 import com.example.shopping.domain.auth.dto.response.SignupResponseDto;
+import com.example.shopping.domain.auth.dto.response.SigninResponseDto;
 import com.example.shopping.domain.auth.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,5 +30,18 @@ public class AuthController {
         return ResponseEntity.ok()
                 .header("Authorization",token)
                 .body(signupResponseDto);
+    }
+
+    @PostMapping("/signin")
+    public ResponseEntity<SigninResponseDto> signIn(
+            @Valid @RequestBody SigninRequestDto signinRequestDto
+    ) {
+        SigninResponseDto signinResponseDto = authService.signIn(signinRequestDto);
+
+        String bearerToken = signinResponseDto.getToken();
+
+        return ResponseEntity.ok()
+                .header("Authorization",bearerToken)
+                .build();
     }
 }

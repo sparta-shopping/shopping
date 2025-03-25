@@ -44,7 +44,6 @@ public class SecurityConfig {
                 .rememberMe(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers("/admin/**").hasAuthority(UserRole.ROLE_ADMIN.name())
                         .anyRequest().authenticated()
                 );
 
