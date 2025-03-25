@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.shopping.common.dto.AuthUser;
@@ -30,6 +31,7 @@ public class ProductUserService {
 	private final UserRepository userRepository;
 	private final ProductRepository productRepository;
 
+	@Transactional(readOnly = true)
 	public PageResponseDto<ProductUserResponseDto> chaseMD(AuthUser authUser, Long productId, Pageable pageable) {
 		User userById = getUser(authUser);
 

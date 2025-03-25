@@ -15,11 +15,13 @@ import com.example.shopping.domain.user.entity.User;
 import com.example.shopping.domain.user.repository.UserRepository;
 import com.example.shopping.domain.user.role.UserRole;
 
+import jakarta.persistence.Table;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -30,6 +32,7 @@ public class ProductService {
 	private final UserRepository userRepository;
 	private final ProductUserRepository productUserRepository;
 
+	@Transactional
 	public ProductResponseDto createProduct(AuthUser authUser, ProductRequestDto dto) {
 		User userById = getUser(authUser);
 
@@ -48,12 +51,14 @@ public class ProductService {
 		return ProductResponseDto.of(saveProduct);
 	}
 
+	@Transactional(readOnly = true)
 	public ProductResponseDto findProduct(Long productId) {
 		Product product = getProduct(productId);
 
 		return ProductResponseDto.of(product);
 	}
 
+	@Transactional(readOnly = true)
 	public PageResponseDto<ProductResponseDto> findProducts(Category category, String keyword, Pageable pageable) {
 		Page<ProductResponseDto> products = productRepository.findProductsByCategoryAndKeyword(
 			category, keyword, pageable
@@ -62,6 +67,7 @@ public class ProductService {
 		return new PageResponseDto<>(products);
 	}
 
+	@Transactional
 	public ProductResponseDto updateProduct(AuthUser authUser, Long productId, ProductRequestDto dto) {
 		User userById = getUser(authUser);
 
@@ -78,6 +84,7 @@ public class ProductService {
 		return ProductResponseDto.of(product);
 	}
 
+	@Transactional
 	public void deleteProduct(AuthUser authUser, Long productId) {
 		User userById = getUser(authUser);
 
@@ -92,6 +99,7 @@ public class ProductService {
 		productUserRepository.save(productUser);
 	}
 
+	@Transactional
 	public ProductResponseDto restoreProduct(AuthUser authUser, Long productId, ProductRequestDto dto) {
 		User userById = getUser(authUser);
 

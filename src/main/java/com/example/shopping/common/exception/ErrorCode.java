@@ -32,6 +32,9 @@ public enum ErrorCode {
 
     // 쿠폰 관련 예외 코드
     COUPON_NOT_FOUND("해당 쿠폰을 찾을 수 없습니다.", NOT_FOUND),
+    ALREADY_PUBLISHED_COUPON("쿠폰 발급 이력이 있습니다.", BAD_REQUEST),
+    EMPTY_COUPON_STOCK("쿠폰 수량이 0입니다.", CONFLICT),
+    AlREADY_USED_COUPON("이미 사용된 쿠폰입니다", BAD_REQUEST),
 
     // 상품 관련 예외 코드
     PRODUCT_NOT_FOUND("해당 상품을 찾을 수 없습니다.", NOT_FOUND),

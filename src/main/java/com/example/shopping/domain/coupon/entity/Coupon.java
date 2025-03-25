@@ -16,9 +16,22 @@ public class Coupon extends TimeStamped {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String name;
+
     private Integer discountAmount;
+
+    private Integer stock;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public Coupon(String name, Integer discountAmount, Integer stock, User user) {
+        this.name = name;
+        this.discountAmount = discountAmount;
+        this.stock = stock;
+        this.user = user;
+    }
+
+    public void publishCoupon(){ this.stock = stock - 1; }
 }

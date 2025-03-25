@@ -6,7 +6,6 @@ import com.example.shopping.domain.product.category.Category;
 import com.example.shopping.domain.product.dto.request.ProductRequestDto;
 import com.example.shopping.domain.product.dto.response.ProductResponseDto;
 import com.example.shopping.domain.product.service.ProductService;
-import com.example.shopping.domain.user.entity.User;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
