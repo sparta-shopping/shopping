@@ -4,6 +4,7 @@ import com.example.shopping.common.entity.TimeStamped;
 import com.example.shopping.domain.user.role.UserRole;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
