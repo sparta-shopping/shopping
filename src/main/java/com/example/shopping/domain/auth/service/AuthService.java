@@ -28,6 +28,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Transactional
     public SignupResponseDto signUp(@Valid SignupRequestDto signupRequestDto) {
