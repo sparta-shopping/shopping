@@ -1,17 +1,15 @@
 package com.example.shopping.domain.cart.controller;
 
-import com.example.shopping.common.dto.PageResponseDto;
 import com.example.shopping.domain.cart.dto.request.CreateCartRequestDto;
 import com.example.shopping.domain.cart.dto.response.GetCartResponseDto;
 import com.example.shopping.domain.cart.service.CartService;
 import com.example.shopping.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,12 +28,10 @@ public class CartController {
 	}
 	
 	@GetMapping("/api/v1/carts")
-	public ResponseEntity<PageResponseDto<GetCartResponseDto>> getCarts(
-		@AuthenticationPrincipal User user,
-		@PageableDefault(page = 1, size = 10) Pageable pageable
+	public ResponseEntity<List<GetCartResponseDto>> getCarts(
+		@AuthenticationPrincipal User user
 	) {
-		Pageable convertPageable = PageRequest.of(pageable.getPageNumber() - 1, pageable.getPageSize());
-		return ResponseEntity.ok(cartService.getCarts(user.getId(), convertPageable));
+		return ResponseEntity.ok(cartService.getCarts(user.getId()));
 	}
 	
 	@DeleteMapping("/api/v1/carts")

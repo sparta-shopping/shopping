@@ -1,6 +1,5 @@
 package com.example.shopping.domain.cart.service;
 
-import com.example.shopping.common.dto.PageResponseDto;
 import com.example.shopping.domain.cart.dto.request.CreateCartRequestDto;
 import com.example.shopping.domain.cart.dto.response.GetCartResponseDto;
 import com.example.shopping.domain.product.category.Category;
@@ -13,7 +12,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -91,19 +89,18 @@ class CartServiceTest {
 		when(productRepository.findProductById(102L)).thenReturn(Optional.of(product2));
 		
 		// when
-		PageResponseDto<GetCartResponseDto> response = cartService.getCarts(userId, PageRequest.of(0, 10));
+		List<GetCartResponseDto> response = cartService.getCarts(userId);
 		
 		// then
 		assertNotNull(response);
-		List<GetCartResponseDto> content = response.getContent();
-		assertEquals(2, content.size());
+		assertEquals(2, response.size());
 		
-		GetCartResponseDto firstCartItem = content.get(0);
+		GetCartResponseDto firstCartItem = response.get(0);
 		assertEquals(101L, firstCartItem.getProductId());
 		assertEquals(2, firstCartItem.getQuantity());
 		assertEquals(2000, firstCartItem.getTotalPrice());
 		
-		GetCartResponseDto secondCartItem = content.get(1);
+		GetCartResponseDto secondCartItem = response.get(1);
 		assertEquals(102L, secondCartItem.getProductId());
 		assertEquals(3, secondCartItem.getQuantity());
 		assertEquals(6000, secondCartItem.getTotalPrice());

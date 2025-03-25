@@ -1,14 +1,10 @@
 package com.example.shopping.domain.cart.service;
 
-import com.example.shopping.common.dto.PageResponseDto;
 import com.example.shopping.domain.cart.dto.request.CreateCartRequestDto;
 import com.example.shopping.domain.cart.dto.response.GetCartResponseDto;
 import com.example.shopping.domain.product.entity.Product;
 import com.example.shopping.domain.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,14 +35,13 @@ public class CartService {
 	}
 	
 	@Transactional(readOnly = true)
-	public PageResponseDto<GetCartResponseDto> getCarts(
-		Long userId,
-		Pageable pageable
+	public List<GetCartResponseDto> getCarts(
+		Long userId
 	) {
 		String key = CART_PREFIX + userId;
 		Map<Object, Object> cartItems = redisTemplate.opsForHash().entries(key);
 		
-		List<GetCartResponseDto> cartList = cartItems.entrySet().stream()
+		return cartItems.entrySet().stream()
 			.map(entry -> {
 				Long productId = Long.parseLong(entry.getKey().toString());
 				Integer quantity = Integer.parseInt(entry.getValue().toString());
@@ -54,14 +49,6 @@ public class CartService {
 				
 				return GetCartResponseDto.of(userId, product, quantity);
 			}).toList();
-		
-		int start = (int) pageable.getOffset();
-		int end = Math.min(start + pageable.getPageSize(), cartList.size());
-		List<GetCartResponseDto> pageList = cartList.subList(start, end);
-		
-		Page<GetCartResponseDto> page = new PageImpl<>(pageList, pageable, cartList.size());
-		
-		return new PageResponseDto<>(page);
 	}
 	
 	@Transactional
