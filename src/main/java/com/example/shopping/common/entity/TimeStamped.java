@@ -30,4 +30,6 @@ public abstract class TimeStamped {
     public void setDeletedAt() {
         this.deletedAt = LocalDateTime.now();
     }
+
+    public void restoreDeletedAt() { this.deletedAt = null; }
 }

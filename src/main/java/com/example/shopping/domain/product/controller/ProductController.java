@@ -1,5 +1,6 @@
 package com.example.shopping.domain.product.controller;
 
+import com.example.shopping.common.dto.AuthUser;
 import com.example.shopping.common.dto.PageResponseDto;
 import com.example.shopping.domain.product.category.Category;
 import com.example.shopping.domain.product.dto.request.ProductRequestDto;
@@ -33,10 +34,10 @@ public class ProductController {
 
 	@PostMapping("/api/v1/product")
 	public ResponseEntity<ProductResponseDto> createProduct(
-		@AuthenticationPrincipal User user,
+		@AuthenticationPrincipal AuthUser authUser,
 		@RequestBody ProductRequestDto dto
 	) {
-		return ResponseEntity.ok(productService.createProduct(user, dto));
+		return ResponseEntity.ok(productService.createProduct(authUser, dto));
 	}
 
 	@GetMapping("/api/v1/product/{productId}")
@@ -57,18 +58,27 @@ public class ProductController {
 
 	@PatchMapping("/api/v1/product/{productId}")
 	public ResponseEntity<ProductResponseDto> updateProduct(
-		@AuthenticationPrincipal User user,
+		@AuthenticationPrincipal AuthUser authUser,
 		@PathVariable Long productId,
 		@RequestBody ProductRequestDto dto
 	) {
-		return ResponseEntity.ok(productService.updateProduct(user, productId, dto));
+		return ResponseEntity.ok(productService.updateProduct(authUser, productId, dto));
+	}
+
+	@PatchMapping("/api/v1/product/{productId}/restore")
+	public ResponseEntity<ProductResponseDto> restoreProduct(
+		@AuthenticationPrincipal AuthUser authUser,
+		@PathVariable Long productId,
+		@RequestBody ProductRequestDto dto
+	) {
+		return ResponseEntity.ok(productService.restoreProduct(authUser, productId, dto));
 	}
 
 	@DeleteMapping("/api/v1/product/{productId}")
 	public void deleteProduct(
-		@AuthenticationPrincipal User user,
+		@AuthenticationPrincipal AuthUser authUser,
 		@PathVariable Long productId
 	) {
-		productService.deleteProduct(user, productId);
+		productService.deleteProduct(authUser, productId);
 	}
 }

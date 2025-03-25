@@ -3,6 +3,7 @@ package com.example.shopping.domain.product.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.example.shopping.common.dto.AuthUser;
 import com.example.shopping.config.JpaTestConfig;
 import com.example.shopping.domain.product.category.Category;
 import com.example.shopping.domain.product.dto.request.ProductRequestDto;
@@ -40,19 +42,39 @@ class ProductServiceTest {
 	@Test
 	void 제품_생성_성공(){
 		// given
-		User user = new User("a@a.com", "1", "a", "1a", UserRole.ADMIN);
+		AuthUser authUser = new AuthUser(1L, "a@a.com", UserRole.ROLE_USER);
+		User user = new User("a@a.com", "1", "a", "1a", UserRole.ROLE_ADMIN);
 		ProductRequestDto dto = new ProductRequestDto("a", Category.PANTS, 10000, 10);
 		Product product = new Product(dto.getName(), dto.getCategory(), dto.getPrice(), dto.getStock(), "a");
 		ReflectionTestUtils.setField(product, "id", 1L);
-		when(userRepository.findUserById(user.getId())).thenReturn(Optional.of(user));
+		when(userRepository.findUserById(authUser.getId())).thenReturn(Optional.of(user));
 		when(productRepository.save(any(Product.class))).thenReturn(product);
 
 		// when
-		ProductResponseDto result = productService.createProduct(user, dto);
+		ProductResponseDto result = productService.createProduct(authUser, dto);
 
 		// then
 		assertNotNull(result);
 		assertEquals(result.getName(), dto.getName());
 	}
 
+	@Test
+	void 제품_되살리기_성공(){
+		// given
+		AuthUser authUser = new AuthUser(1L, "a@a.com", UserRole.ROLE_USER);
+		Long productId = 1L;
+		User user = new User("a@a.com", "1", "a", "1a", UserRole.ROLE_ADMIN);
+		ProductRequestDto dto = new ProductRequestDto("a", Category.PANTS, 10000, 10);
+		Product product = new Product(dto.getName(), dto.getCategory(), dto.getPrice(), dto.getStock(), "a");
+		ReflectionTestUtils.setField(product, "id", 1L);
+		ReflectionTestUtils.setField(product, "deletedAt", LocalDateTime.now());
+		when(userRepository.findUserById(authUser.getId())).thenReturn(Optional.of(user));
+		when(productRepository.findProductById(any(Long.class))).thenReturn(Optional.of(product));
+
+		// when
+		ProductResponseDto result = productService.restoreProduct(authUser, productId, dto);
+
+		// then
+		assertNull(result.getDeletedAt());
+	}
 }
