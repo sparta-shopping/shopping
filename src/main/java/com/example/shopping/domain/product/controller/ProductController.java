@@ -12,6 +12,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -48,5 +49,14 @@ public class ProductController {
 		@PageableDefault(page = 1, size = 10) Pageable pageable
 	) {
 		return ResponseEntity.ok(productService.findProducts(category, keyword, pageable));
+	}
+
+	@PatchMapping("/api/v1/product/{productId}")
+	public ResponseEntity<ProductResponseDto> updateProduct(
+		@AuthenticationPrincipal User user,
+		@RequestParam Long productId,
+		@RequestBody ProductRequestDto dto
+	){
+		return ResponseEntity.ok(productService.updateProduct(user, productId, dto));
 	}
 }

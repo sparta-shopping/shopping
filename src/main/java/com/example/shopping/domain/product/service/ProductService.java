@@ -2,8 +2,6 @@ package com.example.shopping.domain.product.service;
 
 import static com.example.shopping.common.exception.ErrorCode.*;
 
-import java.util.Optional;
-
 import com.example.shopping.common.dto.PageResponseDto;
 import com.example.shopping.domain.product.category.Category;
 import com.example.shopping.domain.product.dto.request.ProductRequestDto;
@@ -12,6 +10,7 @@ import com.example.shopping.domain.product.entity.Product;
 import com.example.shopping.domain.product.repository.ProductRepository;
 import com.example.shopping.domain.user.entity.User;
 import com.example.shopping.domain.user.repository.UserRepository;
+import com.example.shopping.domain.user.role.UserRole;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,8 +27,9 @@ public class ProductService {
 	private final UserRepository userRepository;
 
 	public ProductResponseDto createProduct(User user, ProductRequestDto dto) {
-		User userById = userRepository.findUserById(user.getId())
-			.orElseThrow(() -> new ResponseStatusException(USER_NOT_FOUND.getStatus(), USER_NOT_FOUND.getMessage()));
+		User userById = getUser(user);
+
+		checkAuthority(userById);
 
 		String imageUrl = "image hi";
 
@@ -41,9 +41,7 @@ public class ProductService {
 	}
 
 	public ProductResponseDto findProduct(Long productId) {
-		Product product = productRepository.findProductById(productId)
-			.orElseThrow(
-				() -> new ResponseStatusException(PRODUCT_NOT_FOUND.getStatus(), PRODUCT_NOT_FOUND.getMessage()));
+		Product product = getProduct(productId);
 
 		return ProductResponseDto.of(product);
 	}
@@ -53,5 +51,35 @@ public class ProductService {
 			category, keyword, pageable
 		);
 		return new PageResponseDto<>(products);
+	}
+
+	public ProductResponseDto updateProduct(User user, Long productId, ProductRequestDto dto) {
+		User userById = getUser(user);
+
+		checkAuthority(userById);
+
+		Product product = getProduct(productId);
+
+		product.updateProduct(dto);
+
+		return ProductResponseDto.of(product);
+	}
+
+
+	private User getUser(User user) {
+		return userRepository.findUserById(user.getId())
+			.orElseThrow(() -> new ResponseStatusException(USER_NOT_FOUND.getStatus(), USER_NOT_FOUND.getMessage()));
+	}
+
+	private static void checkAuthority(User userById) {
+		if (userById.getRole() != UserRole.ADMIN) {
+			throw new ResponseStatusException(USER_ACCESS_DENIED.getStatus(), USER_ACCESS_DENIED.getMessage());
+		}
+	}
+
+	private Product getProduct(Long productId) {
+		return productRepository.findProductById(productId)
+			.orElseThrow(
+				() -> new ResponseStatusException(PRODUCT_NOT_FOUND.getStatus(), PRODUCT_NOT_FOUND.getMessage()));
 	}
 }

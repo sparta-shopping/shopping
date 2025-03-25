@@ -3,6 +3,7 @@ package com.example.shopping.domain.product.dto.response;
 import java.time.LocalDateTime;
 
 import com.example.shopping.domain.product.category.Category;
+import com.example.shopping.domain.product.dto.request.ProductRequestDto;
 import com.example.shopping.domain.product.entity.Product;
 import com.querydsl.core.annotations.QueryProjection;
 
@@ -34,10 +35,10 @@ public class ProductResponseDto {
 
 	private final LocalDateTime deletedAt;
 
-	public ProductResponseDto(Long id, String name, Category category, Integer price, Integer reviewCount,
-		Integer stock,
-		Double averageRating, String imageUrl, LocalDateTime createdAt, LocalDateTime updatedAt,
-		LocalDateTime deletedAt) {
+	public ProductResponseDto(
+		Long id, String name, Category category, Integer price, Integer reviewCount, Integer stock,
+		Double averageRating, String imageUrl, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deletedAt
+	) {
 		this.id = id;
 		this.name = name;
 		this.category = category;

@@ -2,6 +2,7 @@ package com.example.shopping.domain.product.entity;
 
 import com.example.shopping.common.entity.TimeStamped;
 import com.example.shopping.domain.product.category.Category;
+import com.example.shopping.domain.product.dto.request.ProductRequestDto;
 import com.example.shopping.domain.user.entity.User;
 
 import jakarta.persistence.*;
@@ -38,5 +39,12 @@ public class Product extends TimeStamped {
 		this.stock = stock;
 		this.imageUrl = imageUrl;
 		this.user = user;
+	}
+
+	public void updateProduct(ProductRequestDto dto){
+		this.name = dto.getName();
+		this.category = dto.getCategory();
+		this.price = dto.getPrice();
+		this.stock = dto.getStock();
 	}
 }
