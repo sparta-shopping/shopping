@@ -20,4 +20,6 @@ public class UserRepositoryQueryImpl implements UserRepositoryQuery {
                         .and(user.deletedAt.isNull()))
                 .fetchOne());
     }
+
+
 }

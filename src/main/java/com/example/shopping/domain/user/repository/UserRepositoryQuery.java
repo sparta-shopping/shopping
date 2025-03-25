@@ -7,4 +7,5 @@ import java.util.Optional;
 public interface UserRepositoryQuery {
 
     Optional<User> findUserById(Long userId);
+
 }
