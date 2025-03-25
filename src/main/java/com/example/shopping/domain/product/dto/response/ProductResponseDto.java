@@ -3,11 +3,8 @@ package com.example.shopping.domain.product.dto.response;
 import java.time.LocalDateTime;
 
 import com.example.shopping.domain.product.category.Category;
-import com.example.shopping.domain.product.dto.request.ProductRequestDto;
 import com.example.shopping.domain.product.entity.Product;
-import com.querydsl.core.annotations.QueryProjection;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter

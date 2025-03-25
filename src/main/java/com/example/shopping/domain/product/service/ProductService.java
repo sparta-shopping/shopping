@@ -7,7 +7,9 @@ import com.example.shopping.domain.product.category.Category;
 import com.example.shopping.domain.product.dto.request.ProductRequestDto;
 import com.example.shopping.domain.product.dto.response.ProductResponseDto;
 import com.example.shopping.domain.product.entity.Product;
+import com.example.shopping.domain.product.entity.ProductUser;
 import com.example.shopping.domain.product.repository.ProductRepository;
+import com.example.shopping.domain.product.repository.ProductUserRepository;
 import com.example.shopping.domain.user.entity.User;
 import com.example.shopping.domain.user.repository.UserRepository;
 import com.example.shopping.domain.user.role.UserRole;
@@ -25,6 +27,7 @@ public class ProductService {
 
 	private final ProductRepository productRepository;
 	private final UserRepository userRepository;
+	private final ProductUserRepository productUserRepository;
 
 	public ProductResponseDto createProduct(User user, ProductRequestDto dto) {
 		User userById = getUser(user);
@@ -33,9 +36,13 @@ public class ProductService {
 
 		String imageUrl = "image hi";
 
-		Product product = new Product(dto.getName(), dto.getCategory(), dto.getPrice(), dto.getStock(), imageUrl, user);
+		Product product = new Product(dto.getName(), dto.getCategory(), dto.getPrice(), dto.getStock(), imageUrl);
 
 		Product saveProduct = productRepository.save(product);
+
+		ProductUser productUser = new ProductUser(saveProduct, userById);
+
+		productUserRepository.save(productUser);
 
 		return ProductResponseDto.of(saveProduct);
 	}
@@ -50,6 +57,7 @@ public class ProductService {
 		Page<ProductResponseDto> products = productRepository.findProductsByCategoryAndKeyword(
 			category, keyword, pageable
 		);
+
 		return new PageResponseDto<>(products);
 	}
 
@@ -62,16 +70,33 @@ public class ProductService {
 
 		product.updateProduct(dto);
 
+		ProductUser productUser = new ProductUser(product, userById);
+
+		productUserRepository.save(productUser);
+
 		return ProductResponseDto.of(product);
 	}
 
+	public void deleteProduct(User user, Long productId) {
+		User userById = getUser(user);
+
+		checkAuthority(userById);
+
+		Product product = getProduct(productId);
+
+		product.setDeletedAt();
+
+		ProductUser productUser = new ProductUser(product, userById);
+
+		productUserRepository.save(productUser);
+	}
 
 	private User getUser(User user) {
 		return userRepository.findUserById(user.getId())
 			.orElseThrow(() -> new ResponseStatusException(USER_NOT_FOUND.getStatus(), USER_NOT_FOUND.getMessage()));
 	}
 
-	private static void checkAuthority(User userById) {
+	private void checkAuthority(User userById) {
 		if (userById.getRole() != UserRole.ADMIN) {
 			throw new ResponseStatusException(USER_ACCESS_DENIED.getStatus(), USER_ACCESS_DENIED.getMessage());
 		}

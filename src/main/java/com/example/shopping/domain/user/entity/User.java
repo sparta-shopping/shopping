@@ -4,10 +4,12 @@ import com.example.shopping.common.entity.TimeStamped;
 import com.example.shopping.domain.user.role.UserRole;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @Getter
 @Entity
 @Table(name = "users")
@@ -24,4 +26,12 @@ public class User extends TimeStamped {
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    public User(String email, String password, String name, String address, UserRole role) {
+        this.email = email;
+        this.password = password;
+        this.name = name;
+        this.address = address;
+        this.role = role;
+    }
 }

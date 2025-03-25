@@ -1,10 +1,8 @@
 package com.example.shopping.domain.product.repository;
 
-import com.example.shopping.common.dto.PageResponseDto;
 import com.example.shopping.domain.product.category.Category;
 import com.example.shopping.domain.product.dto.response.ProductResponseDto;
 import com.example.shopping.domain.product.entity.Product;
-import com.example.shopping.domain.product.entity.QProduct;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
