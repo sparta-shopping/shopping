@@ -8,14 +8,13 @@ import com.example.shopping.domain.product.category.Category;
 import com.example.shopping.domain.product.dto.request.ProductRequestDto;
 import com.example.shopping.domain.product.dto.response.ProductResponseDto;
 import com.example.shopping.domain.product.entity.Product;
-import com.example.shopping.domain.product.entity.ProductUser;
+import com.example.shopping.domain.product.entity.ProductTouchMD;
 import com.example.shopping.domain.product.repository.ProductRepository;
 import com.example.shopping.domain.product.repository.ProductUserRepository;
 import com.example.shopping.domain.user.entity.User;
 import com.example.shopping.domain.user.repository.UserRepository;
 import com.example.shopping.domain.user.role.UserRole;
 
-import jakarta.persistence.Table;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
@@ -44,9 +43,9 @@ public class ProductService {
 
 		Product saveProduct = productRepository.save(product);
 
-		ProductUser productUser = new ProductUser(saveProduct, userById);
+		ProductTouchMD productTouchMD = new ProductTouchMD(saveProduct, userById);
 
-		productUserRepository.save(productUser);
+		productUserRepository.save(productTouchMD);
 
 		return ProductResponseDto.of(saveProduct);
 	}
@@ -77,9 +76,9 @@ public class ProductService {
 
 		product.updateProduct(dto);
 
-		ProductUser productUser = new ProductUser(product, userById);
+		ProductTouchMD productTouchMD = new ProductTouchMD(product, userById);
 
-		productUserRepository.save(productUser);
+		productUserRepository.save(productTouchMD);
 
 		return ProductResponseDto.of(product);
 	}
@@ -94,9 +93,9 @@ public class ProductService {
 
 		product.setDeletedAt();
 
-		ProductUser productUser = new ProductUser(product, userById);
+		ProductTouchMD productTouchMD = new ProductTouchMD(product, userById);
 
-		productUserRepository.save(productUser);
+		productUserRepository.save(productTouchMD);
 	}
 
 	@Transactional
@@ -111,9 +110,9 @@ public class ProductService {
 
 		product.restoreDeletedAt();
 
-		ProductUser productUser = new ProductUser(product, userById);
+		ProductTouchMD productTouchMD = new ProductTouchMD(product, userById);
 
-		productUserRepository.save(productUser);
+		productUserRepository.save(productTouchMD);
 
 		return ProductResponseDto.of(product);
 	}

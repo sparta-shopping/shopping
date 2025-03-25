@@ -1,6 +1,7 @@
 package com.example.shopping.domain.coupon.entity;
 
 import com.example.shopping.common.entity.TimeStamped;
+import com.example.shopping.domain.coupon.dto.request.CouponRequestDto;
 import com.example.shopping.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -34,4 +35,10 @@ public class Coupon extends TimeStamped {
     }
 
     public void publishCoupon(){ this.stock = stock - 1; }
+
+    public void updateCoupon(CouponRequestDto dto){
+        this.name = dto.getCouponName();
+        this.discountAmount = dto.getDiscountAmount();
+        this.stock = dto.getStock();
+    }
 }

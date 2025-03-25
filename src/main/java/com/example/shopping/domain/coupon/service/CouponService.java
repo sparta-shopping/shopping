@@ -4,11 +4,14 @@ import static com.example.shopping.common.exception.ErrorCode.*;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.shopping.common.dto.AuthUser;
+import com.example.shopping.common.dto.PageResponseDto;
 import com.example.shopping.domain.coupon.dto.request.CouponRequestDto;
 import com.example.shopping.domain.coupon.dto.response.CouponHistoryResponseDto;
 import com.example.shopping.domain.coupon.dto.response.CouponResponseDto;
@@ -41,6 +44,52 @@ public class CouponService {
 		Coupon saveCoupon = couponRepository.save(coupon);
 
 		return CouponResponseDto.of(saveCoupon);
+	}
+
+	@Transactional(readOnly = true)
+	public CouponResponseDto findCoupon(Long couponId) {
+		Coupon coupon = getCoupon(couponId);
+
+		return CouponResponseDto.of(coupon);
+	}
+
+	@Transactional(readOnly = true)
+	public PageResponseDto<CouponResponseDto> findCoupons(Pageable pageable) {
+		Page<CouponResponseDto> allCoupons = couponRepository.findAllCoupons(pageable);
+
+		return new PageResponseDto<>(allCoupons);
+	}
+
+	@Transactional
+	public CouponResponseDto updateCoupon(AuthUser authUser, Long couponId, CouponRequestDto dto) {
+		User userById = getUser(authUser);
+
+		checkAuthority(userById);
+
+		Coupon coupon = getCoupon(couponId);
+
+		if (coupon.getUser() != userById) {
+			throw new ResponseStatusException(NOT_SAME_MD.getStatus(), NOT_SAME_MD.getMessage());
+		}
+
+		coupon.updateCoupon(dto);
+
+		return CouponResponseDto.of(coupon);
+	}
+
+	@Transactional
+	public void deleteCoupon(AuthUser authUser, Long couponId) {
+		User userById = getUser(authUser);
+
+		checkAuthority(userById);
+
+		Coupon coupon = getCoupon(couponId);
+
+		if (coupon.getUser() != userById) {
+			throw new ResponseStatusException(NOT_SAME_MD.getStatus(), NOT_SAME_MD.getMessage());
+		}
+
+		coupon.setDeletedAt();
 	}
 
 	@Transactional

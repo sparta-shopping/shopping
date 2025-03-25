@@ -35,6 +35,7 @@ public enum ErrorCode {
     ALREADY_PUBLISHED_COUPON("쿠폰 발급 이력이 있습니다.", BAD_REQUEST),
     EMPTY_COUPON_STOCK("쿠폰 수량이 0입니다.", CONFLICT),
     AlREADY_USED_COUPON("이미 사용된 쿠폰입니다", BAD_REQUEST),
+    NOT_SAME_MD("쿠폰 담당 MD가 아닙니다.", BAD_REQUEST),
 
     // 상품 관련 예외 코드
     PRODUCT_NOT_FOUND("해당 상품을 찾을 수 없습니다.", NOT_FOUND),

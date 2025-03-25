@@ -2,7 +2,7 @@ package com.example.shopping.domain.product.dto.response;
 
 import java.time.LocalDateTime;
 
-import com.example.shopping.domain.product.entity.ProductUser;
+import com.example.shopping.domain.product.entity.ProductTouchMD;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,11 +16,11 @@ public class ProductUserResponseDto {
 
 	private final LocalDateTime touchedAt;
 
-	public static ProductUserResponseDto of(ProductUser productUser) {
+	public static ProductUserResponseDto of(ProductTouchMD productTouchMD) {
 		return new ProductUserResponseDto(
-			productUser.getUser().getId(),
-			productUser.getUser().getName(),
-			productUser.getTouchedAt()
+			productTouchMD.getTouchedUser().getId(),
+			productTouchMD.getTouchedUser().getName(),
+			productTouchMD.getTouchedAt()
 		);
 	}
 }

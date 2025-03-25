@@ -27,8 +27,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
-@Table(name = "product_user")
-public class ProductUser {
+@Table(name = "product_touch_md")
+public class ProductTouchMD {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,16 +39,16 @@ public class ProductUser {
 	private Product product;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "touched_user", nullable = false)
-	private User user;
+	@JoinColumn(name = "user_id", nullable = false)
+	private User touchedUser;
 
 	@CreatedDate
 	@Column(updatable = false)
 	@Temporal(TemporalType.TIMESTAMP)
 	private LocalDateTime touchedAt;
 
-	public ProductUser(Product product, User user) {
+	public ProductTouchMD(Product product, User touchedUser) {
 		this.product = product;
-		this.user = user;
+		this.touchedUser = touchedUser;
 	}
 }
