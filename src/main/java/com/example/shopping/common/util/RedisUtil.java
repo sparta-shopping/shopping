@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class RedisUtil {
 
+
     private final RedisTemplate<String, Object> redisTemplate;
 
     public void save(String key, Object value) {
