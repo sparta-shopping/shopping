@@ -32,4 +32,8 @@ public class User extends TimeStamped {
         this.address = address;
         this.role = role;
     }
+
+    public void changePassword(String password) {
+        this.password = password;
+    }
 }

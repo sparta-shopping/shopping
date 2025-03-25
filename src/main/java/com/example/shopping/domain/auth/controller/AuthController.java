@@ -22,7 +22,8 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<SignupResponseDto> signUp(
-            @Valid @RequestBody SignupRequestDto signupRequestDto) {
+            @Valid @RequestBody SignupRequestDto signupRequestDto
+    ) {
         SignupResponseDto signupResponseDto = authService.signUp(signupRequestDto);
 
         String token = signupResponseDto.getToken();
@@ -44,4 +45,6 @@ public class AuthController {
                 .header("Authorization",bearerToken)
                 .build();
     }
+
+
 }
