@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.shopping.common.dto.AuthUser;
 import com.example.shopping.common.dto.PageResponseDto;
 import com.example.shopping.domain.product.dto.response.ProductUserResponseDto;
 import com.example.shopping.domain.product.entity.Product;
@@ -29,8 +30,8 @@ public class ProductUserService {
 	private final UserRepository userRepository;
 	private final ProductRepository productRepository;
 
-	public PageResponseDto<ProductUserResponseDto> chaseMD(User user, Long productId, Pageable pageable) {
-		User userById = getUser(user);
+	public PageResponseDto<ProductUserResponseDto> chaseMD(AuthUser authUser, Long productId, Pageable pageable) {
+		User userById = getUser(authUser);
 
 		checkAuthority(userById);
 
@@ -46,13 +47,13 @@ public class ProductUserService {
 		return new PageResponseDto<>(productUsers);
 	}
 
-	private User getUser(User user) {
-		return userRepository.findUserById(user.getId())
+	private User getUser(AuthUser authUser) {
+		return userRepository.findUserById(authUser.getId())
 			.orElseThrow(() -> new ResponseStatusException(USER_NOT_FOUND.getStatus(), USER_NOT_FOUND.getMessage()));
 	}
 
 	private void checkAuthority(User userById) {
-		if (userById.getRole() != UserRole.ADMIN) {
+		if (userById.getRole() != UserRole.ROLE_ADMIN) {
 			throw new ResponseStatusException(USER_ACCESS_DENIED.getStatus(), USER_ACCESS_DENIED.getMessage());
 		}
 	}

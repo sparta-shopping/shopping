@@ -2,6 +2,7 @@ package com.example.shopping.domain.product.service;
 
 import static com.example.shopping.common.exception.ErrorCode.*;
 
+import com.example.shopping.common.dto.AuthUser;
 import com.example.shopping.common.dto.PageResponseDto;
 import com.example.shopping.domain.product.category.Category;
 import com.example.shopping.domain.product.dto.request.ProductRequestDto;
@@ -29,8 +30,8 @@ public class ProductService {
 	private final UserRepository userRepository;
 	private final ProductUserRepository productUserRepository;
 
-	public ProductResponseDto createProduct(User user, ProductRequestDto dto) {
-		User userById = getUser(user);
+	public ProductResponseDto createProduct(AuthUser authUser, ProductRequestDto dto) {
+		User userById = getUser(authUser);
 
 		checkAuthority(userById);
 
@@ -61,8 +62,8 @@ public class ProductService {
 		return new PageResponseDto<>(products);
 	}
 
-	public ProductResponseDto updateProduct(User user, Long productId, ProductRequestDto dto) {
-		User userById = getUser(user);
+	public ProductResponseDto updateProduct(AuthUser authUser, Long productId, ProductRequestDto dto) {
+		User userById = getUser(authUser);
 
 		checkAuthority(userById);
 
@@ -77,8 +78,8 @@ public class ProductService {
 		return ProductResponseDto.of(product);
 	}
 
-	public void deleteProduct(User user, Long productId) {
-		User userById = getUser(user);
+	public void deleteProduct(AuthUser authUser, Long productId) {
+		User userById = getUser(authUser);
 
 		checkAuthority(userById);
 
@@ -91,13 +92,31 @@ public class ProductService {
 		productUserRepository.save(productUser);
 	}
 
-	private User getUser(User user) {
-		return userRepository.findUserById(user.getId())
+	public ProductResponseDto restoreProduct(AuthUser authUser, Long productId, ProductRequestDto dto) {
+		User userById = getUser(authUser);
+
+		checkAuthority(userById);
+
+		Product product = getProduct(productId);
+
+		product.updateProduct(dto);
+
+		product.restoreDeletedAt();
+
+		ProductUser productUser = new ProductUser(product, userById);
+
+		productUserRepository.save(productUser);
+
+		return ProductResponseDto.of(product);
+	}
+
+	private User getUser(AuthUser authUser) {
+		return userRepository.findUserById(authUser.getId())
 			.orElseThrow(() -> new ResponseStatusException(USER_NOT_FOUND.getStatus(), USER_NOT_FOUND.getMessage()));
 	}
 
 	private void checkAuthority(User userById) {
-		if (userById.getRole() != UserRole.ADMIN) {
+		if (userById.getRole() != UserRole.ROLE_ADMIN) {
 			throw new ResponseStatusException(USER_ACCESS_DENIED.getStatus(), USER_ACCESS_DENIED.getMessage());
 		}
 	}
