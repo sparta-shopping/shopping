@@ -141,6 +141,7 @@ public class OrderService {
 			);
 	}
 	
+	// 유저의 아이디를 통해 유저를 가져오는 메서드
 	private User getUser(Long userId) {
 		return userRepository.findUserById(userId)
 			.orElseThrow(
@@ -150,6 +151,7 @@ public class OrderService {
 			);
 	}
 	
+	// 주문의 아이디를 통해 주문을 가져오는 메서드
 	private Order getOrder(Long orderId) {
 		return orderRepository.findOrderById(orderId)
 			.orElseThrow(
@@ -159,6 +161,7 @@ public class OrderService {
 			);
 	}
 	
+	// 해당 유저와 주문한 유저가 같은지 확인 후 다르면 예외처리 
 	private void checkOrderUserPermission(User user, Order order) {
 		if(!order.getUser().equals(user)) {
 			throw new ResponseStatusException(
@@ -167,6 +170,7 @@ public class OrderService {
 		}
 	}
 	
+	// 해당 유저의 역할이 관리자인지 확인하고 맞다면 주문 상태 변경, 아니면 예외처리
 	private void checkUserRolePermission(User user, Order order, OrderState orderState) {
 		if (user.getRole().equals(ROLE_ADMIN)) {
 			order.setState(orderState);
