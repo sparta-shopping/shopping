@@ -11,8 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SignupRequestDto {
 
-    //이패넴주롤
-
     @NotBlank
     @Email
     private String email;

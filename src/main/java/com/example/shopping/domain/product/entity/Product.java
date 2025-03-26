@@ -2,7 +2,8 @@ package com.example.shopping.domain.product.entity;
 
 import com.example.shopping.common.entity.TimeStamped;
 import com.example.shopping.domain.product.category.Category;
-import com.example.shopping.domain.product.dto.request.ProductRequestDto;
+import com.example.shopping.domain.product.dto.request.ProductCreateRequestDto;
+import com.example.shopping.domain.product.dto.request.ProductUpdateRequestDto;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -35,7 +36,7 @@ public class Product extends TimeStamped {
 		this.imageUrl = imageUrl;
 	}
 
-	public void updateProduct(ProductRequestDto dto) {
+	public void updateProduct(ProductUpdateRequestDto dto) {
 		this.name = dto.getName();
 		this.category = dto.getCategory();
 		this.price = dto.getPrice();
