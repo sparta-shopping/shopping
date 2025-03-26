@@ -1,10 +1,10 @@
 package com.example.shopping.domain.order.service;
 
 import com.example.shopping.common.dto.PageResponseDto;
-import com.example.shopping.domain.cart.dto.response.GetCartResponseDto;
 import com.example.shopping.domain.cart.service.CartService;
 import com.example.shopping.domain.coupon.entity.Coupon;
 import com.example.shopping.domain.coupon.repository.CouponRepository;
+import com.example.shopping.domain.coupon.service.CouponService;
 import com.example.shopping.domain.order.dto.request.CreateOrderRequestDto;
 import com.example.shopping.domain.order.dto.response.CreateOrderResponseDto;
 import com.example.shopping.domain.order.dto.response.GetOrderResponseDto;
@@ -21,11 +21,13 @@ import com.example.shopping.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.example.shopping.common.exception.ErrorCode.*;
 import static com.example.shopping.domain.order.state.OrderState.*;
@@ -40,13 +42,31 @@ public class OrderService {
 	private final ProductRepository productRepository;
 	private final CartService cartService;
 	private final CouponRepository couponRepository;
+	private final RedisTemplate<String, Object> redisTemplate;
+	private final CouponService couponService;
 	
 	@Transactional
 	public CreateOrderResponseDto saveOrder(Long userId, CreateOrderRequestDto dto) {
 		User user = getUser(userId);
-		List<GetCartResponseDto> cartItems = cartService.getCarts(userId);
 		
-		int totalPrice = 0;
+		String key = CartService.CART_PREFIX + userId;
+		Map<Object, Object> cartItems = redisTemplate.opsForHash().entries(key);
+		
+		List<OrderItem> orderItems = cartItems.entrySet().stream()
+			.map(entry -> {
+				Long productId = Long.parseLong(entry.getKey().toString());
+				Integer quantity = Integer.parseInt(entry.getValue().toString());
+				Product product = getProduct(productId);
+				
+				if(product.getStock() < quantity) {
+					throw new ResponseStatusException(
+						OUT_OF_STOCK.getStatus(), OUT_OF_STOCK.getMessage()
+					);
+				}
+				return new OrderItem(productId, quantity, quantity * product.getPrice());
+		}).toList();
+		
+		Integer totalPrice = 0;
 		Order order = new Order(
 			PENDING,
 			totalPrice,
@@ -54,33 +74,18 @@ public class OrderService {
 			null
 		);
 		
-		for(GetCartResponseDto cartItem : cartItems) {
-			Product product = getProduct(cartItem.getProductId());
-			
-			if(product.getStock() < cartItem.getQuantity()) {
-				throw new ResponseStatusException(
-					OUT_OF_STOCK.getStatus(), OUT_OF_STOCK.getMessage()
-				);
-			}
-			
-			int price = product.getPrice() * cartItem.getQuantity();
-			totalPrice += price;
-			
-			OrderItem orderItem = new OrderItem(
-				product.getId(),
-				cartItem.getQuantity(),
-				price
-			);
+		for (OrderItem orderItem : orderItems) {
+			totalPrice += orderItem.getPrice();
 			order.addOrderItem(orderItem);
 		}
 		
 		if(dto.getCouponId() != null) {
 			Coupon coupon = couponRepository.findCouponById(dto.getCouponId())
 				.orElse(null);
-			
-			if(coupon != null) {
+			if (coupon != null && coupon.getUser().getId().equals(order.getUser().getId())) {
 				totalPrice -= coupon.getDiscountAmount();
 				order.setCoupon(coupon);
+				couponService.useCoupon(coupon.getId(), user);
 			}
 		}
 		order.setTotalPrice(totalPrice);
@@ -89,7 +94,7 @@ public class OrderService {
 		
 		orderRepository.save(order);
 		
-	    return CreateOrderResponseDto.of(order);
+		return CreateOrderResponseDto.of(order);
 	}
 	
 	@Transactional(readOnly = true)
