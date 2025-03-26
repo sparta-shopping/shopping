@@ -5,9 +5,11 @@ import java.time.LocalDateTime;
 import com.example.shopping.domain.product.category.Category;
 import com.example.shopping.domain.product.entity.Product;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public class ProductResponseDto {
 
 	private final Long id;
@@ -31,23 +33,6 @@ public class ProductResponseDto {
 	private final LocalDateTime updatedAt;
 
 	private final LocalDateTime deletedAt;
-
-	public ProductResponseDto(
-		Long id, String name, Category category, Integer price, Integer reviewCount, Integer stock,
-		Double averageRating, String imageUrl, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deletedAt
-	) {
-		this.id = id;
-		this.name = name;
-		this.category = category;
-		this.price = price;
-		this.reviewCount = reviewCount;
-		this.stock = stock;
-		this.averageRating = averageRating;
-		this.imageUrl = imageUrl;
-		this.createdAt = createdAt;
-		this.updatedAt = updatedAt;
-		this.deletedAt = deletedAt;
-	}
 
 	public static ProductResponseDto of(Product product) {
 		return new ProductResponseDto(

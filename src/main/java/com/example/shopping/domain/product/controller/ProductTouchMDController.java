@@ -11,20 +11,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.shopping.common.dto.AuthUser;
 import com.example.shopping.common.dto.PageResponseDto;
-import com.example.shopping.domain.product.dto.response.ProductUserResponseDto;
+import com.example.shopping.domain.product.dto.response.ProductTouchMDResponseDto;
 import com.example.shopping.domain.product.service.ProductUserService;
-import com.example.shopping.domain.user.entity.User;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class ProductUserController {
+public class ProductTouchMDController {
 
 	private final ProductUserService productUserService;
 
 	@GetMapping("/api/v1/product/{productId}/chase")
-	public ResponseEntity<PageResponseDto<ProductUserResponseDto>> chaseMD(
+	public ResponseEntity<PageResponseDto<ProductTouchMDResponseDto>> chaseMD(
 		@AuthenticationPrincipal AuthUser authUser,
 		@PathVariable Long productId,
 		@PageableDefault(page = 1, size = 10) Pageable pageable
