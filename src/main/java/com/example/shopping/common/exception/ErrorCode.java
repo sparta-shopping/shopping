@@ -29,7 +29,6 @@ public enum ErrorCode {
     ORDER_NOT_FOUND("해당 주문을 찾을 수 없습니다.", NOT_FOUND),
     CART_NOT_FOUND("해당 카트를 찾을 수 없습니다.", NOT_FOUND),
     ORDER_ALREADY_FINISH("해당 주문이 이미 완료 상태입니다.", BAD_REQUEST),
-    QUANTITY_CAN_NOT_MINUS("개수가 음수가 될 수 없습니다.", BAD_REQUEST),
 	
     // 쿠폰 관련 예외 코드
     COUPON_NOT_FOUND("해당 쿠폰을 찾을 수 없습니다.", NOT_FOUND),
@@ -40,7 +39,7 @@ public enum ErrorCode {
 
     // 상품 관련 예외 코드
     PRODUCT_NOT_FOUND("해당 상품을 찾을 수 없습니다.", NOT_FOUND),
-    OUT_OF_STOCK("해당 제품의 재고가 부족합니다.", BAD_REQUEST),
+    OUT_OF_STOCK("해당 제품의 재고 범위를 벗어났습니다.", BAD_REQUEST),
 	
     // 리뷰 관련 예외 코드
     REVIEW_NOT_FOUND("해당 리뷰를 찾을 수 없습니다.", NOT_FOUND);

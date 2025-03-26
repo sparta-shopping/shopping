@@ -1,7 +1,6 @@
 package com.example.shopping.domain.order.dto.response;
 
 import com.example.shopping.domain.order.entity.Order;
-import com.example.shopping.domain.order.entity.OrderItem;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -20,7 +19,7 @@ public class GetOrderResponseDto {
 	private final Long couponId;
 	private final String state;
 	private final Integer totalPrice;
-	private final List<OrderItem> orderItems;
+	private final List<OrderItemResponseDto> orderItems;
 	
 	public static GetOrderResponseDto of(Order order) {
 		return new GetOrderResponseDto(
@@ -29,7 +28,8 @@ public class GetOrderResponseDto {
 			(order.getCoupon() != null) ? order.getCoupon().getId() : null,
 			order.getState().toString(),
 			order.getTotalPrice(),
-			order.getOrderItems()
+			order.getOrderItems().stream()
+				.map(OrderItemResponseDto::of).toList()
 		);
 	}
 }
