@@ -23,7 +23,7 @@ public class CartService {
 	
 	private final RedisTemplate<String, Object> redisTemplate;
 	private final ProductRepository productRepository;
-	public static final String CART_PREFIX = "cart:";
+	private final String CART_PREFIX = "cart:";
 	
 	@Transactional
 	public void addCart(Long userId, Long productId, CreateCartRequestDto dto) {
@@ -100,5 +100,9 @@ public class CartService {
 		return (currentQuantityObj != null)
 			? Integer.parseInt(currentQuantityObj.toString())
 			: 0;
+	}
+	
+	public String getKey(Long userId) {
+		return CART_PREFIX + userId;
 	}
 }

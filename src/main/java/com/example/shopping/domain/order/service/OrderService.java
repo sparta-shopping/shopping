@@ -49,7 +49,7 @@ public class OrderService {
 	public CreateOrderResponseDto saveOrder(Long userId, CreateOrderRequestDto dto) {
 		User user = getUser(userId);
 		
-		String key = CartService.CART_PREFIX + userId;
+		String key = cartService.getKey(userId);
 		Map<Object, Object> cartItems = redisTemplate.opsForHash().entries(key);
 		
 		List<OrderItem> orderItems = cartItems.entrySet().stream()
