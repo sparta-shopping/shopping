@@ -1,7 +1,13 @@
 package com.example.shopping.domain.search.service;
 
+import com.example.shopping.domain.product.entity.Product;
+import com.example.shopping.domain.product.repository.ProductRepository;
 import com.example.shopping.domain.search.dto.response.SearchResponseDto;
+import com.example.shopping.domain.search.repository.SearchRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,11 +19,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SearchService {
 
-    private static final int MAXIMUM_SAVED_VALUE = 5;
-    private static final String SEARCH_KEY = "search::";
-    private static final String SEARCH_COUNT_KEY = "search_count::";
-    private static final String POPULAR_KEYWORDS_KEY = "popular_keywords";
+    private final ProductRepository productRepository;
+    private final SearchRepository searchRepository;
 
-
+    @Transactional(readOnly = true)
+    public Page<SearchResponseDto> searchProduct(String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return searchRepository.findByNameContaining(keyword, pageable);
+    }
 
 }

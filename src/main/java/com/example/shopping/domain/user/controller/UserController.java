@@ -24,10 +24,12 @@ public class UserController {
     }
 
     @PatchMapping("/password")
-    public void changePassword(@AuthenticationPrincipal AuthUser authUser,
-                               @RequestBody ChangePasswordRequestDto changePasswordRequestDto) {
+    public void changePassword(
+            @AuthenticationPrincipal AuthUser authUser,
+            @RequestBody ChangePasswordRequestDto changePasswordRequestDto) {
         userService.changePassword(authUser.getId(), changePasswordRequestDto);
     }
+
 
 
 }
