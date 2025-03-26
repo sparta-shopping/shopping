@@ -3,10 +3,10 @@ package com.example.shopping.domain.product.controller;
 import com.example.shopping.common.dto.AuthUser;
 import com.example.shopping.common.dto.PageResponseDto;
 import com.example.shopping.domain.product.category.Category;
-import com.example.shopping.domain.product.dto.request.ProductRequestDto;
+import com.example.shopping.domain.product.dto.request.ProductCreateRequestDto;
+import com.example.shopping.domain.product.dto.request.ProductUpdateRequestDto;
 import com.example.shopping.domain.product.dto.response.ProductResponseDto;
 import com.example.shopping.domain.product.service.ProductService;
-import com.example.shopping.domain.user.entity.User;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,7 +35,7 @@ public class ProductController {
 	@PostMapping("/api/v1/product")
 	public ResponseEntity<ProductResponseDto> createProduct(
 		@AuthenticationPrincipal AuthUser authUser,
-		@RequestBody ProductRequestDto dto
+		@RequestBody ProductCreateRequestDto dto
 	) {
 		return ResponseEntity.ok(productService.createProduct(authUser, dto));
 	}
@@ -60,7 +60,7 @@ public class ProductController {
 	public ResponseEntity<ProductResponseDto> updateProduct(
 		@AuthenticationPrincipal AuthUser authUser,
 		@PathVariable Long productId,
-		@RequestBody ProductRequestDto dto
+		@RequestBody ProductUpdateRequestDto dto
 	) {
 		return ResponseEntity.ok(productService.updateProduct(authUser, productId, dto));
 	}
@@ -69,7 +69,7 @@ public class ProductController {
 	public ResponseEntity<ProductResponseDto> restoreProduct(
 		@AuthenticationPrincipal AuthUser authUser,
 		@PathVariable Long productId,
-		@RequestBody ProductRequestDto dto
+		@RequestBody ProductUpdateRequestDto dto
 	) {
 		return ResponseEntity.ok(productService.restoreProduct(authUser, productId, dto));
 	}
