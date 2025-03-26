@@ -13,10 +13,10 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.shopping.common.dto.AuthUser;
 import com.example.shopping.common.dto.PageResponseDto;
-import com.example.shopping.domain.product.dto.response.ProductUserResponseDto;
+import com.example.shopping.domain.product.dto.response.ProductTouchMDResponseDto;
 import com.example.shopping.domain.product.entity.Product;
 import com.example.shopping.domain.product.repository.ProductRepository;
-import com.example.shopping.domain.product.repository.ProductUserRepository;
+import com.example.shopping.domain.product.repository.ProductTouchMDRepository;
 import com.example.shopping.domain.user.entity.User;
 import com.example.shopping.domain.user.repository.UserRepository;
 import com.example.shopping.domain.user.role.UserRole;
@@ -27,24 +27,24 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProductUserService {
 
-	private final ProductUserRepository productUserRepository;
+	private final ProductTouchMDRepository productTouchMDRepository;
 	private final UserRepository userRepository;
 	private final ProductRepository productRepository;
 
 	@Transactional(readOnly = true)
-	public PageResponseDto<ProductUserResponseDto> chaseMD(AuthUser authUser, Long productId, Pageable pageable) {
+	public PageResponseDto<ProductTouchMDResponseDto> chaseMD(AuthUser authUser, Long productId, Pageable pageable) {
 		User userById = getUser(authUser);
 
 		checkAuthority(userById);
 
 		Product product = getProduct(productId);
 
-		List<ProductUserResponseDto> MDs = productUserRepository.findProductUsersByProduct(product)
+		List<ProductTouchMDResponseDto> MDs = productTouchMDRepository.findProductUsersByProduct(product)
 			.stream()
-			.map(ProductUserResponseDto::of)
+			.map(ProductTouchMDResponseDto::of)
 			.toList();
 
-		Page<ProductUserResponseDto> productUsers = new PageImpl<>(MDs, pageable, MDs.size());
+		Page<ProductTouchMDResponseDto> productUsers = new PageImpl<>(MDs, pageable, MDs.size());
 
 		return new PageResponseDto<>(productUsers);
 	}

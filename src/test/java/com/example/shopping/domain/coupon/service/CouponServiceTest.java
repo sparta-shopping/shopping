@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Import;
 
 import com.example.shopping.common.dto.AuthUser;
 import com.example.shopping.config.JpaTestConfig;
-import com.example.shopping.domain.coupon.dto.request.CouponRequestDto;
+import com.example.shopping.domain.coupon.dto.request.CouponCreateRequestDto;
 import com.example.shopping.domain.coupon.dto.response.CouponHistoryResponseDto;
 import com.example.shopping.domain.coupon.dto.response.CouponResponseDto;
 import com.example.shopping.domain.coupon.entity.Coupon;
@@ -42,7 +42,7 @@ class CouponServiceTest {
 	void 쿠폰_생성_성공() {
 		// given
 		AuthUser authUser = new AuthUser(1L, "a@a.com", UserRole.ROLE_ADMIN);
-		CouponRequestDto dto = new CouponRequestDto("야 싸다!", 10000, 1000);
+		CouponCreateRequestDto dto = new CouponCreateRequestDto("야 싸다!", 10000, 1000);
 		User user = new User("a@a.com", "1", "a", "1a", UserRole.ROLE_ADMIN);
 		Coupon coupon = new Coupon(dto.getCouponName(), dto.getDiscountAmount(), dto.getStock(), user);
 

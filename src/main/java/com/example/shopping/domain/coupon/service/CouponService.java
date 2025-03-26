@@ -12,7 +12,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.shopping.common.dto.AuthUser;
 import com.example.shopping.common.dto.PageResponseDto;
-import com.example.shopping.domain.coupon.dto.request.CouponRequestDto;
+import com.example.shopping.domain.coupon.dto.request.CouponCreateRequestDto;
+import com.example.shopping.domain.coupon.dto.request.CouponUpdateRequestDto;
 import com.example.shopping.domain.coupon.dto.response.CouponHistoryResponseDto;
 import com.example.shopping.domain.coupon.dto.response.CouponResponseDto;
 import com.example.shopping.domain.coupon.entity.Coupon;
@@ -34,12 +35,12 @@ public class CouponService {
 	private final CouponHistoryRepository couponHistoryRepository;
 
 	@Transactional
-	public CouponResponseDto createCoupon(AuthUser authUser, CouponRequestDto dto) {
+	public CouponResponseDto createCoupon(AuthUser authUser, CouponCreateRequestDto dto) {
 		User userById = getUser(authUser);
 
 		checkAuthority(userById);
 
-		Coupon coupon = new Coupon(dto.getCouponName() ,dto.getDiscountAmount(), dto.getStock(), userById);
+		Coupon coupon = new Coupon(dto.getCouponName(), dto.getDiscountAmount(), dto.getStock(), userById);
 
 		Coupon saveCoupon = couponRepository.save(coupon);
 
@@ -61,7 +62,7 @@ public class CouponService {
 	}
 
 	@Transactional
-	public CouponResponseDto updateCoupon(AuthUser authUser, Long couponId, CouponRequestDto dto) {
+	public CouponResponseDto updateCoupon(AuthUser authUser, Long couponId, CouponUpdateRequestDto dto) {
 		User userById = getUser(authUser);
 
 		checkAuthority(userById);
@@ -97,13 +98,15 @@ public class CouponService {
 		Coupon coupon = getCoupon(couponId);
 
 		if (coupon.getStock() == 0) {
+			coupon.setDeletedAt();
 			throw new ResponseStatusException(EMPTY_COUPON_STOCK.getStatus(), EMPTY_COUPON_STOCK.getMessage());
 		}
 
 		User userById = getUser(authUser);
 
 		if (couponHistoryRepository.existsByCouponAndUser(coupon, userById)) {
-			throw new ResponseStatusException(ALREADY_PUBLISHED_COUPON.getStatus(), ALREADY_PUBLISHED_COUPON.getMessage());
+			throw new ResponseStatusException(ALREADY_PUBLISHED_COUPON.getStatus(),
+				ALREADY_PUBLISHED_COUPON.getMessage());
 		}
 
 		coupon.publishCoupon();
@@ -122,7 +125,8 @@ public class CouponService {
 			throw new ResponseStatusException(COUPON_NOT_FOUND.getStatus(), COUPON_NOT_FOUND.getMessage());
 		}
 		if (couponHistories.size() > 1) {
-			throw new ResponseStatusException(ALREADY_PUBLISHED_COUPON.getStatus(), ALREADY_PUBLISHED_COUPON.getMessage());
+			throw new ResponseStatusException(ALREADY_PUBLISHED_COUPON.getStatus(),
+				ALREADY_PUBLISHED_COUPON.getMessage());
 		}
 		if (!couponHistories.get(0).getHasCoupon()) {
 			throw new ResponseStatusException(AlREADY_USED_COUPON.getStatus(), AlREADY_USED_COUPON.getMessage());

@@ -25,7 +25,7 @@ public class CouponResponseDto {
 
 	private final LocalDateTime deletedAt;
 
-	public static CouponResponseDto of(Coupon coupon){
+	public static CouponResponseDto of(Coupon coupon) {
 		return new CouponResponseDto(
 			coupon.getId(),
 			coupon.getName(),

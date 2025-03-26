@@ -8,7 +8,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ProductRequestDto {
+public class ProductCreateRequestDto {
 
 	@NotBlank(message = "제품명은 필수값입니다.")
 	private final String name;

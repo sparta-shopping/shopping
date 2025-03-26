@@ -9,15 +9,15 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ProductUserResponseDto {
+public class ProductTouchMDResponseDto {
 	private final Long userId;
 
 	private final String name;
 
 	private final LocalDateTime touchedAt;
 
-	public static ProductUserResponseDto of(ProductTouchMD productTouchMD) {
-		return new ProductUserResponseDto(
+	public static ProductTouchMDResponseDto of(ProductTouchMD productTouchMD) {
+		return new ProductTouchMDResponseDto(
 			productTouchMD.getTouchedUser().getId(),
 			productTouchMD.getTouchedUser().getName(),
 			productTouchMD.getTouchedAt()
