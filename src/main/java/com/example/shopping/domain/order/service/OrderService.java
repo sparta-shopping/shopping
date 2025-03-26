@@ -9,10 +9,10 @@ import com.example.shopping.domain.order.dto.request.CreateOrderRequestDto;
 import com.example.shopping.domain.order.dto.response.CreateOrderResponseDto;
 import com.example.shopping.domain.order.dto.response.GetOrderResponseDto;
 import com.example.shopping.domain.order.dto.response.GetOrdersResponseDto;
+import com.example.shopping.domain.order.dto.response.UpdateOrderResponseDto;
 import com.example.shopping.domain.order.entity.Order;
 import com.example.shopping.domain.order.entity.OrderItem;
 import com.example.shopping.domain.order.repository.OrderRepository;
-import com.example.shopping.domain.order.state.OrderState;
 import com.example.shopping.domain.product.entity.Product;
 import com.example.shopping.domain.product.repository.ProductRepository;
 import com.example.shopping.domain.user.entity.User;
@@ -27,6 +27,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 import static com.example.shopping.common.exception.ErrorCode.*;
+import static com.example.shopping.domain.order.state.OrderState.*;
+import static com.example.shopping.domain.user.role.UserRole.ROLE_ADMIN;
 
 @Service
 @RequiredArgsConstructor
@@ -45,7 +47,7 @@ public class OrderService {
 		
 		int totalPrice = 0;
 		Order order = new Order(
-			OrderState.PENDING,
+			PENDING,
 			totalPrice,
 			user,
 			null
@@ -96,6 +98,36 @@ public class OrderService {
 	public PageResponseDto<GetOrdersResponseDto> getOrders(Long userId, Pageable pageable) {
 		Page<Order> orders = orderRepository.findAllByUserId(userId, pageable);
 		return new PageResponseDto<>(orders.map(GetOrdersResponseDto::of));
+	}
+	
+	@Transactional
+	public UpdateOrderResponseDto updateOrder(Long userId, Long orderId) {
+		User user = getUser(userId);
+		Order order = getOrder(orderId);
+		
+		if (order.getState().equals(PENDING)) {
+			if (user.getRole().equals(ROLE_ADMIN)) {
+				order.setState(DELIVERING);
+			} else {
+				throw new ResponseStatusException(
+					USER_ACCESS_DENIED.getStatus(), USER_ACCESS_DENIED.getMessage()
+				);
+			}
+		} else if (order.getState().equals(DELIVERING)) {
+			if (user.getRole().equals(ROLE_ADMIN)) {
+				order.setState(FINISH);
+			} else {
+				throw new ResponseStatusException(
+					USER_ACCESS_DENIED.getStatus(), USER_ACCESS_DENIED.getMessage()
+				);
+			}
+		} else {
+			throw new ResponseStatusException(
+				ORDER_ALREADY_FINISH.getStatus(), ORDER_ALREADY_FINISH.getMessage()
+			);
+		}
+		
+		return UpdateOrderResponseDto.of(order);
 	}
 	
 	// 상품의 아이디를 통해 상품을 가져오는 메서드

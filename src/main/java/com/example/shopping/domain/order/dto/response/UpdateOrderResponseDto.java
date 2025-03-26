@@ -5,21 +5,23 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class GetOrdersResponseDto {
+public class UpdateOrderResponseDto {
 	
 	private final Long id;
-	private final Long userId;
 	private final String state;
-	private final Integer totalPrice;
+	private final LocalDateTime createdAt;
+	private final LocalDateTime updatedAt;
 	
-	public static GetOrdersResponseDto of(Order order) {
-		return new GetOrdersResponseDto(
+	public static UpdateOrderResponseDto of(Order order) {
+		return new UpdateOrderResponseDto(
 			order.getId(),
-			order.getUser().getId(),
 			order.getState().toString(),
-			order.getTotalPrice()
+			order.getCreatedAt(),
+			order.getUpdatedAt()
 		);
 	}
 }

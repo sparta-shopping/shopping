@@ -21,6 +21,7 @@ public class Order extends TimeStamped {
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
+	@Setter
 	@Enumerated(EnumType.STRING)
 	private OrderState state;
     

@@ -29,6 +29,7 @@ public enum ErrorCode {
 	ORDER_NOT_FOUND("해당 주문을 찾을 수 없습니다.", NOT_FOUND),
 	CART_NOT_FOUND("해당 카트를 찾을 수 없습니다.", NOT_FOUND),
 	QUANTITY_CAN_NOT_MINUS("수량은 음수가 될 수 없습니다.", BAD_REQUEST),
+	ORDER_ALREADY_FINISH("해당 주문은 이미 완료 상태입니다.", BAD_REQUEST),
 	
 	// 쿠폰 관련 예외 코드
 	COUPON_NOT_FOUND("해당 쿠폰을 찾을 수 없습니다.", NOT_FOUND),
