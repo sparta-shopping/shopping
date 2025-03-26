@@ -5,12 +5,13 @@ import static com.example.shopping.common.exception.ErrorCode.*;
 import com.example.shopping.common.dto.AuthUser;
 import com.example.shopping.common.dto.PageResponseDto;
 import com.example.shopping.domain.product.category.Category;
-import com.example.shopping.domain.product.dto.request.ProductRequestDto;
+import com.example.shopping.domain.product.dto.request.ProductCreateRequestDto;
+import com.example.shopping.domain.product.dto.request.ProductUpdateRequestDto;
 import com.example.shopping.domain.product.dto.response.ProductResponseDto;
 import com.example.shopping.domain.product.entity.Product;
-import com.example.shopping.domain.product.entity.ProductUser;
+import com.example.shopping.domain.product.entity.ProductTouchMD;
 import com.example.shopping.domain.product.repository.ProductRepository;
-import com.example.shopping.domain.product.repository.ProductUserRepository;
+import com.example.shopping.domain.product.repository.ProductTouchMDRepository;
 import com.example.shopping.domain.user.entity.User;
 import com.example.shopping.domain.user.repository.UserRepository;
 import com.example.shopping.domain.user.role.UserRole;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -28,9 +30,10 @@ public class ProductService {
 
 	private final ProductRepository productRepository;
 	private final UserRepository userRepository;
-	private final ProductUserRepository productUserRepository;
+	private final ProductTouchMDRepository productTouchMDRepository;
 
-	public ProductResponseDto createProduct(AuthUser authUser, ProductRequestDto dto) {
+	@Transactional
+	public ProductResponseDto createProduct(AuthUser authUser, ProductCreateRequestDto dto) {
 		User userById = getUser(authUser);
 
 		checkAuthority(userById);
@@ -41,19 +44,21 @@ public class ProductService {
 
 		Product saveProduct = productRepository.save(product);
 
-		ProductUser productUser = new ProductUser(saveProduct, userById);
+		ProductTouchMD productTouchMD = new ProductTouchMD(saveProduct, userById);
 
-		productUserRepository.save(productUser);
+		productTouchMDRepository.save(productTouchMD);
 
 		return ProductResponseDto.of(saveProduct);
 	}
 
+	@Transactional(readOnly = true)
 	public ProductResponseDto findProduct(Long productId) {
 		Product product = getProduct(productId);
 
 		return ProductResponseDto.of(product);
 	}
 
+	@Transactional(readOnly = true)
 	public PageResponseDto<ProductResponseDto> findProducts(Category category, String keyword, Pageable pageable) {
 		Page<ProductResponseDto> products = productRepository.findProductsByCategoryAndKeyword(
 			category, keyword, pageable
@@ -62,7 +67,8 @@ public class ProductService {
 		return new PageResponseDto<>(products);
 	}
 
-	public ProductResponseDto updateProduct(AuthUser authUser, Long productId, ProductRequestDto dto) {
+	@Transactional
+	public ProductResponseDto updateProduct(AuthUser authUser, Long productId, ProductUpdateRequestDto dto) {
 		User userById = getUser(authUser);
 
 		checkAuthority(userById);
@@ -71,13 +77,14 @@ public class ProductService {
 
 		product.updateProduct(dto);
 
-		ProductUser productUser = new ProductUser(product, userById);
+		ProductTouchMD productTouchMD = new ProductTouchMD(product, userById);
 
-		productUserRepository.save(productUser);
+		productTouchMDRepository.save(productTouchMD);
 
 		return ProductResponseDto.of(product);
 	}
 
+	@Transactional
 	public void deleteProduct(AuthUser authUser, Long productId) {
 		User userById = getUser(authUser);
 
@@ -87,12 +94,13 @@ public class ProductService {
 
 		product.setDeletedAt();
 
-		ProductUser productUser = new ProductUser(product, userById);
+		ProductTouchMD productTouchMD = new ProductTouchMD(product, userById);
 
-		productUserRepository.save(productUser);
+		productTouchMDRepository.save(productTouchMD);
 	}
 
-	public ProductResponseDto restoreProduct(AuthUser authUser, Long productId, ProductRequestDto dto) {
+	@Transactional
+	public ProductResponseDto restoreProduct(AuthUser authUser, Long productId, ProductUpdateRequestDto dto) {
 		User userById = getUser(authUser);
 
 		checkAuthority(userById);
@@ -103,9 +111,9 @@ public class ProductService {
 
 		product.restoreDeletedAt();
 
-		ProductUser productUser = new ProductUser(product, userById);
+		ProductTouchMD productTouchMD = new ProductTouchMD(product, userById);
 
-		productUserRepository.save(productUser);
+		productTouchMDRepository.save(productTouchMD);
 
 		return ProductResponseDto.of(product);
 	}

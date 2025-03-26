@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
 @Table(name = "users")
@@ -32,5 +32,9 @@ public class User extends TimeStamped {
         this.name = name;
         this.address = address;
         this.role = role;
+    }
+
+    public void changePassword(String password) {
+        this.password = password;
     }
 }
