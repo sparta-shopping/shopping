@@ -13,6 +13,7 @@ import com.example.shopping.domain.order.dto.response.UpdateOrderResponseDto;
 import com.example.shopping.domain.order.entity.Order;
 import com.example.shopping.domain.order.entity.OrderItem;
 import com.example.shopping.domain.order.repository.OrderRepository;
+import com.example.shopping.domain.order.state.OrderState;
 import com.example.shopping.domain.product.entity.Product;
 import com.example.shopping.domain.product.repository.ProductRepository;
 import com.example.shopping.domain.user.entity.User;
@@ -106,21 +107,9 @@ public class OrderService {
 		Order order = getOrder(orderId);
 		
 		if (order.getState().equals(PENDING)) {
-			if (user.getRole().equals(ROLE_ADMIN)) {
-				order.setState(DELIVERING);
-			} else {
-				throw new ResponseStatusException(
-					USER_ACCESS_DENIED.getStatus(), USER_ACCESS_DENIED.getMessage()
-				);
-			}
+			checkUserRolePermission(user, order, DELIVERING);
 		} else if (order.getState().equals(DELIVERING)) {
-			if (user.getRole().equals(ROLE_ADMIN)) {
-				order.setState(FINISH);
-			} else {
-				throw new ResponseStatusException(
-					USER_ACCESS_DENIED.getStatus(), USER_ACCESS_DENIED.getMessage()
-				);
-			}
+			checkUserRolePermission(user, order, FINISH);
 		} else {
 			throw new ResponseStatusException(
 				ORDER_ALREADY_FINISH.getStatus(), ORDER_ALREADY_FINISH.getMessage()
@@ -160,6 +149,16 @@ public class OrderService {
 	
 	private void checkOrderUserPermission(User user, Order order) {
 		if(!order.getUser().equals(user)) {
+			throw new ResponseStatusException(
+				USER_ACCESS_DENIED.getStatus(), USER_ACCESS_DENIED.getMessage()
+			);
+		}
+	}
+	
+	private void checkUserRolePermission(User user, Order order, OrderState orderState) {
+		if (user.getRole().equals(ROLE_ADMIN)) {
+			order.setState(orderState);
+		} else {
 			throw new ResponseStatusException(
 				USER_ACCESS_DENIED.getStatus(), USER_ACCESS_DENIED.getMessage()
 			);
