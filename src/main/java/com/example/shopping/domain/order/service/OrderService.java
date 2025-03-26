@@ -56,6 +56,13 @@ public class OrderService {
 		
 		for(GetCartResponseDto cartItem : cartItems) {
 			Product product = getProduct(cartItem.getProductId());
+			
+			if(product.getStock() < cartItem.getQuantity()) {
+				throw new ResponseStatusException(
+					OUT_OF_STOCK.getStatus(), OUT_OF_STOCK.getMessage()
+				);
+			}
+			
 			int price = product.getPrice() * cartItem.getQuantity();
 			totalPrice += price;
 			
