@@ -22,7 +22,7 @@ public class SearchController {
     @GetMapping
     public ResponseEntity<Page<SearchResponseDto>> search(
             @RequestParam String keyword,
-            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(searchService.searchProduct(keyword, page, size));
     }
