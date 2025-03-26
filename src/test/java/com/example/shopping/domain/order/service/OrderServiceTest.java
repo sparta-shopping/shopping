@@ -121,30 +121,4 @@ class OrderServiceTest {
 		assertEquals(3, response.getOrderItems().get(0).getQuantity());
 		assertEquals(300, response.getTotalPrice());
 	}
-
-//	@Test
-//	void saveOrder_Fail_UserNotFound() {
-//		// Given
-//		when(userRepository.findUserById(userId)).thenReturn(Optional.empty());
-//
-//		// When & Then
-//		assertThrows(RuntimeException.class, () -> orderService.saveOrder(userId, createOrderRequestDto, pageable));
-//	}
-//
-//	@Test
-//	void saveOrder_Fail_ProductNotFound() {
-//		// Given
-//		User user = new User();
-//		user.setId(userId);
-//
-//		GetCartResponseDto cartItem = GetCartResponseDto.of();
-//		List<GetCartResponseDto> cartItems = List.of(cartItem);
-//
-//		when(userRepository.findUserById(userId)).thenReturn(Optional.of(user));
-//		when(cartService.getCarts(userId, pageable)).thenReturn(new PageImpl<>(cartItems));
-//		when(productRepository.findProductById(1L)).thenReturn(Optional.empty());
-//
-//		// When & Then
-//		assertThrows(RuntimeException.class, () -> orderService.saveOrder(userId, createOrderRequestDto, pageable));
-//	}
 }
