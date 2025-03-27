@@ -1,0 +1,5 @@
+spring:
+  config:
+    import:
+      - classpath:/prod/application-datasource.yml
+      - classpath:/prod/application-secret.yml

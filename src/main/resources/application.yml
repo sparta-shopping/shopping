@@ -1,6 +1,4 @@
 spring:
-  profiles:
-    active: local
-
-  application:
-    name: shopping
+  config:
+    import:
+      - classpath:/prod/application-prod.yml
