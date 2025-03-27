@@ -20,12 +20,12 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping
+@RequestMapping("/api/v1/search")
 public class SearchController {
 
     private final SearchService searchService;
 
-    @GetMapping("/api/v1/search")
+    @GetMapping
     public ResponseEntity<PageResponseDto<SearchResponseDto>> searchProducts(
             @RequestParam String keyword,
             @PageableDefault(page = 1, size = 10) Pageable pageable
@@ -37,13 +37,12 @@ public class SearchController {
         return ResponseEntity.ok(searchService.findProducts( keyword, convertPageable));
     }
 
-    @GetMapping("/api/v1/search/popular")
+    @GetMapping("/popular")
     public ResponseEntity<List<PopularSearchResponseDto>> getPopularSearches(
             @RequestParam(defaultValue = "10") int size
     ) {
         List<PopularSearchResponseDto> popularSearches = searchService.findPopularSearches(size);
         return ResponseEntity.ok(popularSearches);
     }
-
 
 }

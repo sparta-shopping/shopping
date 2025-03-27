@@ -55,6 +55,11 @@ dependencies {
 
     // bcrypt
     implementation 'at.favre.lib:bcrypt:0.10.2'
+
+    //spring-boot-starter-cache
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
 }
 
 tasks.named('test') {
