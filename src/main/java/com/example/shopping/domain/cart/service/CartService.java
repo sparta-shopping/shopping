@@ -12,8 +12,10 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
-import static com.example.shopping.common.exception.ErrorCode.*;
+import static com.example.shopping.common.exception.ErrorCode.OUT_OF_STOCK;
+import static com.example.shopping.common.exception.ErrorCode.PRODUCT_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -26,12 +28,13 @@ public class CartService {
 	@Transactional
 	public void addCart(Long userId, Long productId, CreateCartRequestDto dto) {
 		Product findProduct = getProduct(productId);
-		checkStock(findProduct, dto.getQuantity());
+		quantityPermission(userId, findProduct, dto.getQuantity());
 		
 		String key = CART_PREFIX + userId;
-		checkQuantity(userId, productId, dto.getQuantity());
+		Integer currentQuantity = getQuantity(key, productId) + dto.getQuantity();
 		
-		redisTemplate.opsForHash().increment(key, productId.toString(), dto.getQuantity());
+		redisTemplate.opsForHash().put(key, productId.toString(), currentQuantity);
+		redisTemplate.expire(key, 10, TimeUnit.HOURS);
 	}
 	
 	@Transactional(readOnly = true)
@@ -56,7 +59,11 @@ public class CartService {
 		String key = CART_PREFIX + userId;
 		
 		Object cartItem = redisTemplate.opsForHash().get(key, productId.toString());
-		checkCartItem(productId, cartItem);
+		if (cartItem == null) {
+			throw new ResponseStatusException(PRODUCT_NOT_FOUND.getStatus(), PRODUCT_NOT_FOUND.getMessage());
+		}
+		
+		redisTemplate.opsForHash().delete(key, productId.toString());
 	}
 	
 	@Transactional
@@ -75,35 +82,27 @@ public class CartService {
 			);
 	}
 	
-	// 상품의 남은 재고보다 구입하려는 수량이 많을 때의 예외처리
-	private void checkStock(Product product, Integer quantity) {
-		if (product.getStock() < quantity) {
-			throw new ResponseStatusException(OUT_OF_STOCK.getStatus(), OUT_OF_STOCK.getMessage());
-		}
-	}
-	
-	// 장바구니의 물건 개수가 음수가 되는 것을 방지하는 예외처리
-	private void checkQuantity(Long userId, Long productId, Integer quantity) {
+	// 장바구니의 물건 개수가 음수가 되거나, 해당 제품의 재고를 넘어갈 때의 예외처리
+	private void quantityPermission(Long userId, Product product, Integer quantity) {
 		String key = CART_PREFIX + userId;
+		Integer currentQuantity = getQuantity(key, product.getId()) + quantity;
 		
-		Object currentQuantityObj = redisTemplate.opsForHash().get(key, productId.toString());
-		Integer currentQuantity = (currentQuantityObj != null)
-			? Integer.parseInt(currentQuantityObj.toString())
-			: 0;
-		
-		if (currentQuantity + quantity < 0) {
+		if (currentQuantity + quantity < 0 || product.getStock() < currentQuantity) {
 			throw new ResponseStatusException(
-				QUANTITY_CAN_NOT_MINUS.getStatus(), QUANTITY_CAN_NOT_MINUS.getMessage()
+				OUT_OF_STOCK.getStatus(), OUT_OF_STOCK.getMessage()
 			);
 		}
 	}
 	
-	// 내 카트에 해당 아이템이 있다면 해당 아이템 제거 없다면 예외처리 메서드
-	private void checkCartItem(Long productId, Object cartItem) {
-		if (cartItem == null) {
-			throw new ResponseStatusException(PRODUCT_NOT_FOUND.getStatus(), PRODUCT_NOT_FOUND.getMessage());
-		} else {
-			redisTemplate.opsForHash().delete(productId.toString());
-		}
+	// 현재 장바구니 내 해당 상품의 개수를 반환하는 메서드
+	private Integer getQuantity(String key, Long productId) {
+		Object currentQuantityObj = redisTemplate.opsForHash().get(key, productId.toString());
+		return (currentQuantityObj != null)
+			? Integer.parseInt(currentQuantityObj.toString())
+			: 0;
+	}
+	
+	public String getKey(Long userId) {
+		return CART_PREFIX + userId;
 	}
 }

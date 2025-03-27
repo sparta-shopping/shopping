@@ -8,7 +8,6 @@ import com.example.shopping.domain.order.dto.response.GetOrderResponseDto;
 import com.example.shopping.domain.order.dto.response.GetOrdersResponseDto;
 import com.example.shopping.domain.order.dto.response.UpdateOrderResponseDto;
 import com.example.shopping.domain.order.service.OrderService;
-import com.example.shopping.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,16 +24,16 @@ public class OrderController {
 
     @PostMapping("/api/v1/orders")
     public ResponseEntity<CreateOrderResponseDto> saveOrder(
-            @AuthenticationPrincipal AuthUser authUser,
-            @RequestBody CreateOrderRequestDto dto
+        @AuthenticationPrincipal AuthUser authUser,
+        @RequestBody CreateOrderRequestDto dto
     ) {
         return ResponseEntity.ok(orderService.saveOrder(authUser.getId(), dto));
     }
     
-    @GetMapping("/api/v1/orderss")
+    @GetMapping("/api/v1/orders/{orderId}")
     public ResponseEntity<GetOrderResponseDto> getOrder(
         @AuthenticationPrincipal AuthUser authUser,
-        @RequestParam Long orderId
+        @PathVariable Long orderId
     ) {
         return ResponseEntity.ok(orderService.getOrder(authUser.getId(), orderId));
     }

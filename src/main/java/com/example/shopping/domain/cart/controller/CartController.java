@@ -4,7 +4,7 @@ import com.example.shopping.common.dto.AuthUser;
 import com.example.shopping.domain.cart.dto.request.CreateCartRequestDto;
 import com.example.shopping.domain.cart.dto.response.GetCartResponseDto;
 import com.example.shopping.domain.cart.service.CartService;
-import com.example.shopping.domain.user.entity.User;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,7 +22,7 @@ public class CartController {
 	public ResponseEntity<String> addCart(
 		@AuthenticationPrincipal AuthUser authUser,
 		@RequestParam Long productId,
-		@RequestBody CreateCartRequestDto dto
+		@Valid @RequestBody CreateCartRequestDto dto
 	) {
 		cartService.addCart(authUser.getId(), productId, dto);
 		return ResponseEntity.ok("해당 상품이 장바구니에 등록 됐습니다.");
