@@ -1,7 +1,6 @@
 package com.example.shopping.domain.search.repository;
 
-import com.example.shopping.domain.product.category.Category;
-import com.example.shopping.domain.product.dto.response.ProductResponseDto;
+
 import com.example.shopping.domain.search.dto.response.SearchResponseDto;
 import com.example.shopping.domain.search.entity.Search;
 import com.querydsl.core.types.Projections;
@@ -39,9 +38,13 @@ public class SearchRepositoryQueryImpl implements SearchRepositoryQuery {
                 .fetch();
 
         long total = jpaQueryFactory
-                .selectFrom(product)
+                .select(product.count())
+                .from(product)
                 .where(product.name.contains(keyword))
-                .fetchCount();
+                .fetch()
+                .stream()
+                .findFirst()
+                .orElse(0L);
 
         return new PageImpl<>(content, pageable, total);
     }

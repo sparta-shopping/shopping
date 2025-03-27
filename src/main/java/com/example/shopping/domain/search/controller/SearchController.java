@@ -2,6 +2,7 @@ package com.example.shopping.domain.search.controller;
 
 import com.example.shopping.common.dto.PageResponseDto;
 import com.example.shopping.domain.product.dto.response.ProductResponseDto;
+import com.example.shopping.domain.search.dto.response.PopularSearchResponseDto;
 import com.example.shopping.domain.search.dto.response.SearchResponseDto;
 import com.example.shopping.domain.search.entity.Search;
 import com.example.shopping.domain.search.service.SearchService;
@@ -19,12 +20,12 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/search")
+@RequestMapping
 public class SearchController {
 
     private final SearchService searchService;
 
-    @GetMapping
+    @GetMapping("/api/v1/search")
     public ResponseEntity<PageResponseDto<SearchResponseDto>> searchProducts(
             @RequestParam String keyword,
             @PageableDefault(page = 1, size = 10) Pageable pageable
@@ -36,12 +37,13 @@ public class SearchController {
         return ResponseEntity.ok(searchService.findProducts( keyword, convertPageable));
     }
 
-    @GetMapping("/popular")
-    public ResponseEntity<List<Search>> getPopularSearches(
+    @GetMapping("/api/v1/search/popular")
+    public ResponseEntity<List<PopularSearchResponseDto>> getPopularSearches(
             @RequestParam(defaultValue = "10") int size
     ) {
-        List<Search> popularSearches = searchService.findPopularSearches(size);
+        List<PopularSearchResponseDto> popularSearches = searchService.findPopularSearches(size);
         return ResponseEntity.ok(popularSearches);
     }
+
 
 }

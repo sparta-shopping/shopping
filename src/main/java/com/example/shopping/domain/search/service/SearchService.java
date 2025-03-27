@@ -1,6 +1,7 @@
 package com.example.shopping.domain.search.service;
 
 import com.example.shopping.common.dto.PageResponseDto;
+import com.example.shopping.domain.search.dto.response.PopularSearchResponseDto;
 import com.example.shopping.domain.search.dto.response.SearchResponseDto;
 import com.example.shopping.domain.search.entity.Search;
 import com.example.shopping.domain.search.repository.SearchRepository;
@@ -42,10 +43,14 @@ public class SearchService {
     }
 
     @Transactional(readOnly = true)
-    public List<Search> findPopularSearches(int size) {
-        return searchRepository.findAllByOrderByCountDesc()
+    public List<PopularSearchResponseDto> findPopularSearches(int size) {
+        List<Search> popularSearches = searchRepository.findAllByOrderByCountDesc()
                 .stream()
                 .limit(size)
+                .toList();
+
+        return popularSearches.stream()
+                .map(PopularSearchResponseDto::of)
                 .toList();
     }
 }
