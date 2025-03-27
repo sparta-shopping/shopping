@@ -10,7 +10,10 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 
-public interface SearchRepository extends JpaRepository<Product, Long>,SearchRepositoryQuery {
+public interface SearchRepository extends JpaRepository<Search, Long>,SearchRepositoryQuery {
+
+    Optional<Search> findByKeyword(String keyword);
+
 
 
 }

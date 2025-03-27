@@ -16,4 +16,12 @@ public class Search {
     private String keyword;
 
     private Integer count = 1;
+
+    public void incrementCount() {
+        this.count++;
+    }
+
+    public Search(String keyword) {
+        this.keyword = keyword;
+    }
 }

@@ -3,6 +3,7 @@ package com.example.shopping.domain.search.repository;
 import com.example.shopping.domain.product.category.Category;
 import com.example.shopping.domain.product.dto.response.ProductResponseDto;
 import com.example.shopping.domain.search.dto.response.SearchResponseDto;
+import com.example.shopping.domain.search.entity.Search;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 import static com.example.shopping.domain.product.entity.QProduct.product;
+import static com.example.shopping.domain.search.entity.QSearch.search;
 
 
 @RequiredArgsConstructor
@@ -43,5 +45,14 @@ public class SearchRepositoryQueryImpl implements SearchRepositoryQuery {
 
         return new PageImpl<>(content, pageable, total);
     }
+
+    @Override
+    public List<Search> findAllByOrderByCountDesc() {
+        return jpaQueryFactory
+                .selectFrom(search)
+                .orderBy(search.count.desc())
+                .fetch();
+    }
+
 
 }
