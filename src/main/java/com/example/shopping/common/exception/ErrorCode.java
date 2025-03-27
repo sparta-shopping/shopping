@@ -37,6 +37,7 @@ public enum ErrorCode {
     EMPTY_COUPON_STOCK("쿠폰 수량이 0입니다.", CONFLICT),
     AlREADY_USED_COUPON("이미 사용된 쿠폰입니다", BAD_REQUEST),
     NOT_SAME_MD("쿠폰 담당 MD가 아닙니다.", BAD_REQUEST),
+    FAILED_TO_GAIN_LOCK("락 획득에 실패했습니다.", LOCKED),
 
     // 상품 관련 예외 코드
     PRODUCT_NOT_FOUND("해당 상품을 찾을 수 없습니다.", NOT_FOUND),

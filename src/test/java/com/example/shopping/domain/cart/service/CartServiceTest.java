@@ -3,7 +3,7 @@ package com.example.shopping.domain.cart.service;
 import com.example.shopping.domain.cart.dto.request.CreateCartRequestDto;
 import com.example.shopping.domain.cart.dto.response.GetCartResponseDto;
 import com.example.shopping.domain.product.category.Category;
-import com.example.shopping.domain.product.dto.request.ProductRequestDto;
+import com.example.shopping.domain.product.dto.request.ProductCreateRequestDto;
 import com.example.shopping.domain.product.entity.Product;
 import com.example.shopping.domain.product.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,8 +51,8 @@ class CartServiceTest {
 		Long userId = 1L;
 		Long productId = 101L;
 		Integer quantity = 2;
-		
-		ProductRequestDto dto = new ProductRequestDto("a", Category.PANTS, 10000, 10);
+
+		ProductCreateRequestDto dto = new ProductCreateRequestDto("a", Category.PANTS, 10000, 10);
 		Product product = new Product(dto.getName(), dto.getCategory(), dto.getPrice(), dto.getStock(), "a");
 		ReflectionTestUtils.setField(product, "id", 1L);
 		CreateCartRequestDto dto2 = new CreateCartRequestDto(quantity);

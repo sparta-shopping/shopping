@@ -24,5 +24,10 @@ public class RedisUtil {
     public void delete(String key) {
         redisTemplate.delete(key);
     }
+
+    // 4. 분산 락 (Distributed Lock)
+    public Boolean setIfAbsent(String key, Object value, long time, TimeUnit timeUnit) {
+        return redisTemplate.opsForValue().setIfAbsent(key, value, time, timeUnit);
+    }
 }
 

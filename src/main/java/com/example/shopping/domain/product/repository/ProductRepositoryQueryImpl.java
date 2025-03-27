@@ -57,6 +57,8 @@ public class ProductRepositoryQueryImpl implements ProductRepositoryQuery {
 				product.name.containsIgnoreCase(keyword)
 			)
 			.orderBy(product.averageRating.desc())
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize())
 			.fetch();
 
 		Long total = jpaQueryFactory

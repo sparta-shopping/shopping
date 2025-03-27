@@ -9,7 +9,7 @@ import lombok.Getter;
 public class CouponUpdateRequestDto {
 
 	@NotBlank(message = "쿠폰명은 필수값입니다.")
-	private final String CouponName;
+	private final String couponName;
 
 	@NotBlank(message = "할인가격은 필수값입니다.")
 	private final Integer discountAmount;
