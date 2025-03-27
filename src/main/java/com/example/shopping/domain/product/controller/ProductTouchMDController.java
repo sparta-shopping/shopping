@@ -22,7 +22,7 @@ public class ProductTouchMDController {
 
 	private final ProductUserService productUserService;
 
-	@GetMapping("/api/v1/product/{productId}/chase")
+	@GetMapping("/api/v1/products/{productId}/chase")
 	public ResponseEntity<PageResponseDto<ProductTouchMDResponseDto>> chaseMD(
 		@AuthenticationPrincipal AuthUser authUser,
 		@PathVariable Long productId,

@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -32,22 +33,22 @@ public class ProductController {
 
 	private final ProductService productService;
 
-	@PostMapping("/api/v1/product")
+	@PostMapping("/api/v1/products")
 	public ResponseEntity<ProductResponseDto> createProduct(
 		@AuthenticationPrincipal AuthUser authUser,
-		@RequestBody ProductCreateRequestDto dto
+		@Valid @RequestBody ProductCreateRequestDto dto
 	) {
 		return ResponseEntity.ok(productService.createProduct(authUser, dto));
 	}
 
-	@GetMapping("/api/v1/product/{productId}")
+	@GetMapping("/api/v1/products/{productId}")
 	public ResponseEntity<ProductResponseDto> findProduct(
 		@PathVariable Long productId
 	) {
 		return ResponseEntity.ok(productService.findProduct(productId));
 	}
 
-	@GetMapping("/api/v1/product")
+	@GetMapping("/api/v1/products")
 	public ResponseEntity<PageResponseDto<ProductResponseDto>> findProducts(
 		@RequestParam Category category, String keyword,
 		@PageableDefault(page = 1, size = 10) Pageable pageable
@@ -56,25 +57,25 @@ public class ProductController {
 		return ResponseEntity.ok(productService.findProducts(category, keyword, convertPageable));
 	}
 
-	@PatchMapping("/api/v1/product/{productId}")
+	@PatchMapping("/api/v1/products/{productId}")
 	public ResponseEntity<ProductResponseDto> updateProduct(
 		@AuthenticationPrincipal AuthUser authUser,
 		@PathVariable Long productId,
-		@RequestBody ProductUpdateRequestDto dto
+		@Valid @RequestBody ProductUpdateRequestDto dto
 	) {
 		return ResponseEntity.ok(productService.updateProduct(authUser, productId, dto));
 	}
 
-	@PatchMapping("/api/v1/product/{productId}/restore")
+	@PatchMapping("/api/v1/products/{productId}/restore")
 	public ResponseEntity<ProductResponseDto> restoreProduct(
 		@AuthenticationPrincipal AuthUser authUser,
 		@PathVariable Long productId,
-		@RequestBody ProductUpdateRequestDto dto
+		@Valid @RequestBody ProductUpdateRequestDto dto
 	) {
 		return ResponseEntity.ok(productService.restoreProduct(authUser, productId, dto));
 	}
 
-	@DeleteMapping("/api/v1/product/{productId}")
+	@DeleteMapping("/api/v1/products/{productId}")
 	public void deleteProduct(
 		@AuthenticationPrincipal AuthUser authUser,
 		@PathVariable Long productId

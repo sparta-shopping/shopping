@@ -13,6 +13,8 @@ import com.example.shopping.domain.product.entity.Product;
 import com.example.shopping.domain.product.repository.ProductRepository;
 import com.example.shopping.domain.user.entity.User;
 import com.example.shopping.domain.user.repository.UserRepository;
+import com.example.shopping.domain.user.role.UserRole;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -61,7 +63,7 @@ class OrderServiceTest {
 	@Test
 	void 쿠폰이_있는_주문을_저장한다() {
 		// Given
-		User user = new User();
+		User user = new User("a@a.com","1", "a", "1a", UserRole.ROLE_USER);
 		ReflectionTestUtils.setField(user, "id", userId);
 		
 		Product product = new Product("Test Product", Category.PANTS, 100, 10, "Description");
@@ -95,7 +97,7 @@ class OrderServiceTest {
 	@Test
 	void 쿠폰이_없는_주문을_저장한다() {
 		// Given
-		User user = new User();
+		User user = new User("a@a.com","1", "a", "1a", UserRole.ROLE_USER);
 		ReflectionTestUtils.setField(user, "id", userId);
 		
 		Product product = new Product("Test Product", Category.PANTS, 100, 10, "Description");

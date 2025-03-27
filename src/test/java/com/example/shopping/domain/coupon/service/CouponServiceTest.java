@@ -25,7 +25,6 @@ import com.example.shopping.domain.user.entity.User;
 import com.example.shopping.domain.user.repository.UserRepository;
 import com.example.shopping.domain.user.role.UserRole;
 
-@Import(JpaTestConfig.class)
 @ExtendWith(MockitoExtension.class)
 class CouponServiceTest {
 

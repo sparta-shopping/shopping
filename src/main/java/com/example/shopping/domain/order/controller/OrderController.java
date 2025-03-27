@@ -38,7 +38,7 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrder(authUser.getId(), orderId));
     }
     
-    @GetMapping("/api/v1/orders")
+    @GetMapping("/api/v1/orderss")
     public ResponseEntity<PageResponseDto<GetOrdersResponseDto>> getOrders(
         @AuthenticationPrincipal AuthUser authUser,
         @PageableDefault(page = 1, size = 10) Pageable pageable

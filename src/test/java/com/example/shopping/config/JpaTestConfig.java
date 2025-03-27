@@ -8,7 +8,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
-@TestConfiguration
+
 public class JpaTestConfig {
 
 	@PersistenceContext
