@@ -52,6 +52,12 @@ dependencies {
 
     // S3
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+    implementation("software.amazon.awssdk:s3:2.31.6")
+    implementation 'javax.xml.bind:jaxb-api:2.3.1'
+    implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.1'
+
+    //Jasypt
+    implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5'
 
     // bcrypt
     implementation 'at.favre.lib:bcrypt:0.10.2'

@@ -44,6 +44,7 @@ public class SecurityConfig {
                 .rememberMe(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/api/v1/**").permitAll()
                         .anyRequest().authenticated()
                 );
 
