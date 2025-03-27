@@ -6,13 +6,13 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class PopularSearchResponseDto {
+public class SearchResponseDto {
 
     private final Long productId;
     private final String keyword;
 
-    public static PopularSearchResponseDto of(Search search) {
-        return new PopularSearchResponseDto(
+    public static SearchResponseDto of(Search search) {
+        return new SearchResponseDto(
                 search.getId(),
                 search.getKeyword()
         );
