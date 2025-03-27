@@ -1,5 +1,6 @@
 package com.example.shopping.domain.order.controller;
 
+import com.example.shopping.common.dto.AuthUser;
 import com.example.shopping.common.dto.PageResponseDto;
 import com.example.shopping.domain.order.dto.request.CreateOrderRequestDto;
 import com.example.shopping.domain.order.dto.response.CreateOrderResponseDto;
@@ -24,36 +25,36 @@ public class OrderController {
 
     @PostMapping("/api/v1/orders")
     public ResponseEntity<CreateOrderResponseDto> saveOrder(
-        @AuthenticationPrincipal User user,
-        CreateOrderRequestDto dto
+            @AuthenticationPrincipal AuthUser authUser,
+            @RequestBody CreateOrderRequestDto dto
     ) {
-        return ResponseEntity.ok(orderService.saveOrder(user.getId(), dto));
+        return ResponseEntity.ok(orderService.saveOrder(authUser.getId(), dto));
     }
     
-    @GetMapping("/api/v1/orders")
+    @GetMapping("/api/v1/orderss")
     public ResponseEntity<GetOrderResponseDto> getOrder(
-        @AuthenticationPrincipal User user,
+        @AuthenticationPrincipal AuthUser authUser,
         @RequestParam Long orderId
     ) {
-        return ResponseEntity.ok(orderService.getOrder(user.getId(), orderId));
+        return ResponseEntity.ok(orderService.getOrder(authUser.getId(), orderId));
     }
     
     @GetMapping("/api/v1/orders")
     public ResponseEntity<PageResponseDto<GetOrdersResponseDto>> getOrders(
-        @AuthenticationPrincipal User user,
+        @AuthenticationPrincipal AuthUser authUser,
         @PageableDefault(page = 1, size = 10) Pageable pageable
     ) {
         Pageable convertPageable =
             PageRequest.of(pageable.getPageNumber() - 1, pageable.getPageSize());
         
-        return ResponseEntity.ok(orderService.getOrders(user.getId(), convertPageable));
+        return ResponseEntity.ok(orderService.getOrders(authUser.getId(), convertPageable));
     }
     
     @PatchMapping("/api/v1/orders/{orderId}")
     public ResponseEntity<UpdateOrderResponseDto> updateOrder(
-        @AuthenticationPrincipal User user,
+        @AuthenticationPrincipal AuthUser authUser,
         @PathVariable Long orderId
     ) {
-        return ResponseEntity.ok(orderService.updateOrder(user.getId(), orderId));
+        return ResponseEntity.ok(orderService.updateOrder(authUser.getId(), orderId));
     }
 }
