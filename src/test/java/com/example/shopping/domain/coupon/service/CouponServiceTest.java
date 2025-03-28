@@ -10,10 +10,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.annotation.Import;
 
 import com.example.shopping.common.dto.AuthUser;
-import com.example.shopping.config.JpaTestConfig;
+import com.example.shopping.common.util.LockManager;
 import com.example.shopping.domain.coupon.dto.request.CouponCreateRequestDto;
 import com.example.shopping.domain.coupon.dto.response.CouponHistoryResponseDto;
 import com.example.shopping.domain.coupon.dto.response.CouponResponseDto;
@@ -34,8 +33,14 @@ class CouponServiceTest {
 	private CouponRepository couponRepository;
 	@Mock
 	private CouponHistoryRepository couponHistoryRepository;
+	@Mock
+	private CouponPublishService couponPublishService;
+	@Mock
+	private LockManager lockManager;
+
 	@InjectMocks
 	private CouponService couponService;
+
 
 	@Test
 	void 쿠폰_생성_성공() {
@@ -66,10 +71,7 @@ class CouponServiceTest {
 		User user = new User("user@user.com", "1", "a", "1a", UserRole.ROLE_USER);
 		CouponHistory couponHistory = new CouponHistory(user, coupon);
 
-		when(userRepository.findUserById(authUser.getId())).thenReturn(Optional.of(user));
-		when(couponRepository.findCouponById(any(Long.class))).thenReturn(Optional.of(coupon));
-		when(couponHistoryRepository.existsByCouponAndUser(any(Coupon.class), any(User.class))).thenReturn(false);
-		when(couponHistoryRepository.save(any(CouponHistory.class))).thenReturn(couponHistory);
+		when(couponPublishService.getCouponHistory(any(AuthUser.class), any(Long.class))).thenReturn(couponHistory);
 
 		// when
 		CouponHistoryResponseDto result = couponService.publishCoupon(authUser, couponId);

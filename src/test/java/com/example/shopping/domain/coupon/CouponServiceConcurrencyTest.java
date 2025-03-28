@@ -2,8 +2,6 @@ package com.example.shopping.domain.coupon;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -20,11 +18,12 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import com.example.shopping.common.dto.AuthUser;
 import com.example.shopping.common.util.JwtUtil;
-import com.example.shopping.common.util.LockManager;
+import com.example.shopping.common.util.LockManagerImpl;
 import com.example.shopping.domain.coupon.entity.Coupon;
 import com.example.shopping.domain.coupon.entity.CouponHistory;
 import com.example.shopping.domain.coupon.repository.CouponHistoryRepository;
 import com.example.shopping.domain.coupon.repository.CouponRepository;
+import com.example.shopping.domain.coupon.service.CouponPublishService;
 import com.example.shopping.domain.coupon.service.CouponService;
 import com.example.shopping.domain.user.entity.User;
 import com.example.shopping.domain.user.repository.UserRepository;
@@ -38,6 +37,12 @@ public class CouponServiceConcurrencyTest {
 
 	@Autowired
 	private CouponService couponService;
+
+	@Autowired
+	private CouponPublishService couponPublishService;
+
+	@Autowired
+	private LockManagerImpl lockManagerImpl;
 
 	@Autowired
 	private CouponRepository couponRepository;
