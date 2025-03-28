@@ -21,6 +21,7 @@ import com.example.shopping.domain.coupon.dto.response.CouponHistoryResponseDto;
 import com.example.shopping.domain.coupon.dto.response.CouponResponseDto;
 import com.example.shopping.domain.coupon.service.CouponService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -29,22 +30,22 @@ public class CouponController {
 
 	private final CouponService couponService;
 
-	@PostMapping("/api/v1/coupon")
+	@PostMapping("/api/v1/coupons")
 	public ResponseEntity<CouponResponseDto> createCoupon(
 		@AuthenticationPrincipal AuthUser authUser,
-		@RequestBody CouponCreateRequestDto dto
+		@Valid @RequestBody CouponCreateRequestDto dto
 	) {
 		return ResponseEntity.ok(couponService.createCoupon(authUser, dto));
 	}
 
-	@GetMapping("/api/v1/coupon/{couponId}")
+	@GetMapping("/api/v1/coupons/{couponId}")
 	public ResponseEntity<CouponResponseDto> findCoupon(
 		@PathVariable Long couponId
 	) {
 		return ResponseEntity.ok(couponService.findCoupon(couponId));
 	}
 
-	@GetMapping("/api/v1/coupon")
+	@GetMapping("/api/v1/coupons")
 	public ResponseEntity<PageResponseDto<CouponResponseDto>> findCoupons(
 		@PageableDefault(page = 1, size = 10) Pageable pageable
 	) {
@@ -52,16 +53,16 @@ public class CouponController {
 		return ResponseEntity.ok(couponService.findCoupons(convertPageable));
 	}
 
-	@PatchMapping("/api/v1/coupon/{couponId}")
+	@PatchMapping("/api/v1/coupons/{couponId}")
 	public ResponseEntity<CouponResponseDto> updateCoupon(
 		@AuthenticationPrincipal AuthUser authUser,
 		@PathVariable Long couponId,
-		@RequestBody CouponUpdateRequestDto dto
+		@Valid @RequestBody CouponUpdateRequestDto dto
 	) {
 		return ResponseEntity.ok(couponService.updateCoupon(authUser, couponId, dto));
 	}
 
-	@DeleteMapping("/api/v1/coupon/{couponId}")
+	@DeleteMapping("/api/v1/coupons/{couponId}")
 	public void deleteCoupon(
 		@AuthenticationPrincipal AuthUser authUser,
 		@PathVariable Long couponId
@@ -69,12 +70,43 @@ public class CouponController {
 		couponService.deleteCoupon(authUser, couponId);
 	}
 
-	@PatchMapping("/api/v1/coupon/{couponId}/publish")
+	// 1. 기본 형
+	@PatchMapping("/api/v1/coupon/{couponId}/publish/basic")
 	public ResponseEntity<CouponHistoryResponseDto> publishCoupon(
 		@AuthenticationPrincipal AuthUser authUser,
 		@PathVariable Long couponId
 	) {
 		return ResponseEntity.ok(couponService.publishCoupon(authUser, couponId));
+	}
+
+	// 2. 비관적 락 (Pessimistic Lock)
+	// @Lock(LockModeType.PESSIMISTIC_WRITE)
+	@PatchMapping("/api/v1/coupon/{couponId}/publish/pessimistic")
+	public ResponseEntity<CouponHistoryResponseDto> publishPessimistic(
+		@AuthenticationPrincipal AuthUser authUser,
+		@PathVariable Long couponId
+	) {
+		return ResponseEntity.ok(couponService.publishCouponPessimistic(authUser, couponId));
+	}
+
+	// 3. 분산 락 (Distributed Lock)d
+	// Lettuce
+	@PatchMapping("/api/v1/coupon/{couponId}/publish/distributed")
+	public ResponseEntity<CouponHistoryResponseDto> publishDistributed(
+		@AuthenticationPrincipal AuthUser authUser,
+		@PathVariable Long couponId
+	) {
+		return ResponseEntity.ok(couponService.publishCouponDistributed(authUser, couponId));
+	}
+
+	// 4. 공정 락 (Fair Lock)
+	// RedissonClient
+	@PatchMapping("/api/v1/coupon/{couponId}/publish/fair")
+	public ResponseEntity<CouponHistoryResponseDto> publishFair(
+		@AuthenticationPrincipal AuthUser authUser,
+		@PathVariable Long couponId
+	) {
+		return ResponseEntity.ok(couponService.publishCouponFair(authUser, couponId));
 	}
 
 }

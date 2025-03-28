@@ -4,6 +4,8 @@ import com.example.shopping.domain.coupon.dto.response.CouponResponseDto;
 import com.example.shopping.domain.coupon.entity.Coupon;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+
+import jakarta.persistence.LockModeType;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -14,6 +16,7 @@ import static com.example.shopping.domain.coupon.entity.QCoupon.coupon;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Lock;
 
 @RequiredArgsConstructor
 public class CouponRepositoryQueryImpl implements CouponRepositoryQuery {
@@ -45,6 +48,8 @@ public class CouponRepositoryQueryImpl implements CouponRepositoryQuery {
             )
             .from(coupon)
             .orderBy(coupon.updatedAt.desc())
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
             .fetch();
 
         Long total = jpaQueryFactory
