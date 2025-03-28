@@ -37,6 +37,9 @@ class OrderServiceTest {
 	private ProductRepository productRepository;
 	
 	@Autowired
+	private OrderService orderService;
+	
+	@Autowired
 	private UserRepository userRepository;
 	
 	@Autowired
@@ -54,17 +57,13 @@ class OrderServiceTest {
 	
 	@BeforeEach
 	public void setUp() {
-		userRepository.deleteAll();
-		productRepository.deleteAll();
-		orderRepository.deleteAll();
-		
-		Product product = new Product("Test Product", Category.PANTS, 1000, INITIAL_STOCK, "a.jpg");
-		productRepository.save(product);
-		
 		// 테스트용 User 생성 (테스트 환경에 맞게 수정)
 		testUser = new User("testuser@example.com", "password", "Test User", "Test", UserRole.ROLE_ADMIN);
 		testUser = userRepository.save(testUser);
 		testAuthUser = new AuthUser(testUser.getId(), testUser.getEmail(), testUser.getRole());
+		
+		Product product = new Product("Test Product", Category.PANTS, 1000, INITIAL_STOCK, "a.jpg");
+		productRepository.save(product);
 	}
 	
 	// AOP를 활용한 분산락
@@ -91,6 +90,7 @@ class OrderServiceTest {
 					
 					cartService.addCart(newAuthUser.getId(), PRODUCT_ID, dto);
 					orderServiceConcurrency.saveOrderV2(newAuthUser.getId(), requestDto);
+//					orderService.saveOrder(newAuthUser.getId(), requestDto);
 					successCount.getAndIncrement();
 					System.out.println("현재 주문 수 : " + successCount);
 				} catch (Exception e) {
