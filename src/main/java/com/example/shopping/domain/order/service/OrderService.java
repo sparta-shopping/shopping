@@ -19,6 +19,7 @@ import com.example.shopping.domain.product.repository.ProductRepository;
 import com.example.shopping.domain.user.entity.User;
 import com.example.shopping.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -33,6 +34,7 @@ import static com.example.shopping.common.exception.ErrorCode.*;
 import static com.example.shopping.domain.order.state.OrderState.*;
 import static com.example.shopping.domain.user.role.UserRole.ROLE_ADMIN;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderService {
@@ -49,8 +51,8 @@ public class OrderService {
 	public CreateOrderResponseDto saveOrder(Long userId, CreateOrderRequestDto dto) {
 		User user = getUser(userId);
 		
-		String key = cartService.getKey(userId);
-		Map<Object, Object> cartItems = redisTemplate.opsForHash().entries(key);
+		String cartKey = cartService.getKey(userId);
+		Map<Object, Object> cartItems = redisTemplate.opsForHash().entries(cartKey);
 		
 		List<OrderItem> orderItems = cartItems.entrySet().stream()
 			.map(entry -> {
@@ -63,6 +65,10 @@ public class OrderService {
 						OUT_OF_STOCK.getStatus(), OUT_OF_STOCK.getMessage()
 					);
 				}
+				log.info("Product {} stock before decrease: {}", product.getId(), product.getStock());
+				product.decreaseStock(quantity);
+				productRepository.save(product);
+				log.info("Product {} stock after decrease: {}", product.getId(), product.getStock());
 				return new OrderItem(productId, quantity, quantity * product.getPrice());
 		}).toList();
 		

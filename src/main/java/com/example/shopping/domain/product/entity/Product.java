@@ -2,9 +2,7 @@ package com.example.shopping.domain.product.entity;
 
 import com.example.shopping.common.entity.TimeStamped;
 import com.example.shopping.domain.product.category.Category;
-import com.example.shopping.domain.product.dto.request.ProductCreateRequestDto;
 import com.example.shopping.domain.product.dto.request.ProductUpdateRequestDto;
-
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -41,5 +39,9 @@ public class Product extends TimeStamped {
 		this.category = dto.getCategory();
 		this.price = dto.getPrice();
 		this.stock = dto.getStock();
+	}
+	
+	public void decreaseStock(Integer quantity) {
+		this.stock -= quantity;
 	}
 }
