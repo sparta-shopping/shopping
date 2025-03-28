@@ -106,6 +106,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         removeRefreshToken(originAccessToken);
         refreshTokenRepository.save(new RefreshToken(userId,newAccessToken,refreshToken.getRefreshToken()));
         return newAccessToken;
-
+        //RefreshToken에 대한 API생성필요
+        //RefreshToken에 대한 validation 검증을 하고,AccessToken은 다시 만들되, refreshToken은 새로 만들지 않는다.
+        //RefreshToken이 만료되면 재 로그인.
     }
 }

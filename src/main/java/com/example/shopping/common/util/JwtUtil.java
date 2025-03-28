@@ -33,7 +33,7 @@ public class JwtUtil {
     private final RedisUtil redisUtil;
 
     private static final String BEARER_PREFIX = "Bearer ";
-    private static final long TOKEN_TIME = 60 * 60 * 1000L; //60분
+    private static final long ACCESS_TOKEN_TIME = 60 * 60 * 7 *24 *1000L;  //1주일(테스트중이라 1주일로 바꿈)
     private static final long REFRESH_TOKEN_TIME = 60 * 60 * 7 *24 *1000L; //1주일
 
     @Value("${SECRET_KEY}")
@@ -56,7 +56,7 @@ public class JwtUtil {
                 .claim("role", role)
                 .claim("name", name)
                 .claim("address", address)
-                .setExpiration(new Date(date.getTime() + TOKEN_TIME))
+                .setExpiration(new Date(date.getTime() + ACCESS_TOKEN_TIME))
                 .setIssuedAt(date) //발급일
                 .signWith(key, signatureAlgorithm)
                 .compact();
