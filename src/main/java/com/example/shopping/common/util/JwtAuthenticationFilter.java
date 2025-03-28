@@ -4,6 +4,7 @@ package com.example.shopping.common.util;
 import com.example.shopping.common.dto.AuthUser;
 import com.example.shopping.domain.auth.entity.RefreshToken;
 import com.example.shopping.domain.auth.repository.RefreshTokenRepository;
+import com.example.shopping.domain.auth.service.AuthService;
 import com.example.shopping.domain.user.entity.User;
 import com.example.shopping.domain.user.repository.UserRepository;
 import com.example.shopping.domain.user.role.UserRole;
@@ -32,7 +33,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final UserRepository userRepository;
+    private final AuthService authService;
+
 
     @Override
     protected void doFilterInternal(
@@ -71,7 +73,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private void handleExpiredToken(HttpServletResponse response, String expiredToken) throws IOException {
         RefreshToken refreshToken = getRefreshToken(expiredToken);
         if (refreshToken != null && jwtUtil.validateRefreshToken(refreshToken.getRefreshToken())) {
-            String newAccessToken = reCreateAccessToken(refreshToken);
+            String newAccessToken = authService.reCreateAccessToken(refreshToken);
             response.setHeader("New-Access-Token", newAccessToken);
             response.setStatus(HttpServletResponse.SC_OK);
         } else {
@@ -96,14 +98,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
 
-    public String reCreateAccessToken(RefreshToken refreshToken) {
-        Long userId = refreshToken.getId();
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new ResponseStatusException(USER_NOT_FOUND.getStatus(), USER_NOT_FOUND.getMessage()));
-        String newAccessToken = jwtUtil.createAccessToken(user.getId(), user.getEmail(), user.getRole(), user.getName(), user.getAddress());
 
-        refreshTokenRepository.save(new RefreshToken(userId, newAccessToken, refreshToken.getRefreshToken()));
-        return newAccessToken;
-    }
 
 }
