@@ -38,7 +38,7 @@ public class CouponService {
 	private final UserRepository userRepository;
 	private final CouponHistoryRepository couponHistoryRepository;
 	private final LockManager lockManager;
-	private final EntityManager em;
+	private final CouponPublishService couponPublishService;
 
 	@Transactional
 	public CouponResponseDto createCoupon(AuthUser authUser, CouponCreateRequestDto dto) {
@@ -102,13 +102,9 @@ public class CouponService {
 	// 1. 기본 형
 	@Transactional
 	public CouponHistoryResponseDto publishCoupon(AuthUser authUser, Long couponId) {
-		checkHasCouponAndPublish(authUser, couponId);
+		couponPublishService.checkHasCouponAndPublish(authUser, couponId);
 
-		Coupon coupon = getCoupon(couponId);
-
-		User user = getUser(authUser);
-
-		CouponHistory couponHistory = couponHistoryRepository.findByCouponAndUser(coupon, user);
+		CouponHistory couponHistory = couponPublishService.getCouponHistory(authUser, couponId);
 
 		return CouponHistoryResponseDto.of(couponHistory);
 	}
@@ -117,8 +113,10 @@ public class CouponService {
 	// @Lock(LockModeType.PESSIMISTIC_WRITE)
 	@Transactional
 	public CouponHistoryResponseDto publishCouponPessimistic(AuthUser authUser, Long couponId) {
+		// 쿠폰 조회에 PESSIMISTIC 락을 걸어 조회부터 원천 차단.
 		Coupon coupon = couponRepository.findCouponByIdForPessimisticLock(couponId)
-			.orElseThrow(() -> new ResponseStatusException(COUPON_NOT_FOUND.getStatus(), COUPON_NOT_FOUND.getMessage()));
+			.orElseThrow(
+				() -> new ResponseStatusException(COUPON_NOT_FOUND.getStatus(), COUPON_NOT_FOUND.getMessage()));
 
 		if (coupon.getStock() == 0) {
 			coupon.setDeletedAt();
@@ -129,7 +127,8 @@ public class CouponService {
 
 		// 쿠폰 발급 내역을 PESSIMISTIC 락을 걸어 조회하여, 중복 발급 여부를 원자적으로 확인
 		if (couponHistoryRepository.findCouponHistoryForPessimistic(coupon, user).isPresent()) {
-			throw new ResponseStatusException(ALREADY_PUBLISHED_COUPON.getStatus(), ALREADY_PUBLISHED_COUPON.getMessage());
+			throw new ResponseStatusException(ALREADY_PUBLISHED_COUPON.getStatus(),
+				ALREADY_PUBLISHED_COUPON.getMessage());
 		}
 
 		coupon.publishCoupon();
@@ -145,68 +144,34 @@ public class CouponService {
 
 	// 3. 분산 락 (Distributed Lock)
 	// Lettuce
-	@Transactional
 	public CouponHistoryResponseDto publishCouponDistributed(AuthUser authUser, Long couponId) {
 		try {
-			lockManager.executeWithDistributedLock(couponId, () -> checkHasCouponAndPublish(authUser, couponId));
+			lockManager.executeWithDistributedLock(couponId,
+				() -> couponPublishService.checkHasCouponAndPublish(authUser, couponId));
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			throw new ResponseStatusException(FAILED_TO_GAIN_LOCK.getStatus(), FAILED_TO_GAIN_LOCK.getMessage());
 		}
 
-		Coupon coupon = getCoupon(couponId);
-
-		User user = getUser(authUser);
-
-		CouponHistory couponHistory = couponHistoryRepository.findByCouponAndUser(coupon, user);
+		CouponHistory couponHistory = couponPublishService.getCouponHistory(authUser, couponId);
 
 		return CouponHistoryResponseDto.of(couponHistory);
 	}
 
 	// 4. 공정 락 (Fair Lock)
 	// RedissonClient
-	@Transactional
 	public CouponHistoryResponseDto publishCouponFair(AuthUser authUser, Long couponId) {
 		try {
-			lockManager.executeWithFairLock(couponId, () -> checkHasCouponAndPublish(authUser, couponId));
+			lockManager.executeWithFairLock(couponId,
+				() -> couponPublishService.checkHasCouponAndPublish(authUser, couponId));
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			throw new ResponseStatusException(FAILED_TO_GAIN_LOCK.getStatus(), FAILED_TO_GAIN_LOCK.getMessage());
 		}
 
-		Coupon coupon = getCoupon(couponId);
-
-		User user = getUser(authUser);
-
-		CouponHistory couponHistory = couponHistoryRepository.findByCouponAndUser(coupon, user);
+		CouponHistory couponHistory = couponPublishService.getCouponHistory(authUser, couponId);
 
 		return CouponHistoryResponseDto.of(couponHistory);
-	}
-
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	protected void checkHasCouponAndPublish(AuthUser authUser, Long couponId) {
-		Coupon coupon = getCoupon(couponId);
-
-		if (coupon.getStock() == 0) {
-			coupon.setDeletedAt();
-			throw new ResponseStatusException(EMPTY_COUPON_STOCK.getStatus(), EMPTY_COUPON_STOCK.getMessage());
-		}
-
-		User user = getUser(authUser);
-
-		if (couponHistoryRepository.existsByCouponAndUser(coupon, user)) {
-			throw new ResponseStatusException(ALREADY_PUBLISHED_COUPON.getStatus(), ALREADY_PUBLISHED_COUPON.getMessage());
-		}
-
-		coupon.publishCoupon();
-
-		couponRepository.save(coupon);
-
-		CouponHistory couponHistory = new CouponHistory(user, coupon);
-
-		couponHistoryRepository.save(couponHistory);
-
-		em.flush();
 	}
 
 	private User getUser(AuthUser authUser) {
