@@ -7,11 +7,14 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.shopping.common.dto.AuthUser;
 import com.example.shopping.common.dto.PageResponseDto;
+import com.example.shopping.common.util.LockManager;
 import com.example.shopping.domain.coupon.dto.request.CouponCreateRequestDto;
 import com.example.shopping.domain.coupon.dto.request.CouponUpdateRequestDto;
 import com.example.shopping.domain.coupon.dto.response.CouponHistoryResponseDto;
@@ -24,6 +27,7 @@ import com.example.shopping.domain.user.entity.User;
 import com.example.shopping.domain.user.repository.UserRepository;
 import com.example.shopping.domain.user.role.UserRole;
 
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -33,6 +37,8 @@ public class CouponService {
 	private final CouponRepository couponRepository;
 	private final UserRepository userRepository;
 	private final CouponHistoryRepository couponHistoryRepository;
+	private final LockManager lockManager;
+	private final CouponPublishService couponPublishService;
 
 	@Transactional
 	public CouponResponseDto createCoupon(AuthUser authUser, CouponCreateRequestDto dto) {
@@ -93,45 +99,79 @@ public class CouponService {
 		coupon.setDeletedAt();
 	}
 
+	// 1. 기본 형
 	@Transactional
 	public CouponHistoryResponseDto publishCoupon(AuthUser authUser, Long couponId) {
-		Coupon coupon = getCoupon(couponId);
+		couponPublishService.checkHasCouponAndPublish(authUser, couponId);
+
+		CouponHistory couponHistory = couponPublishService.getCouponHistory(authUser, couponId);
+
+		return CouponHistoryResponseDto.of(couponHistory);
+	}
+
+	// 2. 비관적 락 (Pessimistic Lock)
+	// @Lock(LockModeType.PESSIMISTIC_WRITE)
+	@Transactional
+	public CouponHistoryResponseDto publishCouponPessimistic(AuthUser authUser, Long couponId) {
+		// 쿠폰 조회에 PESSIMISTIC 락을 걸어 조회부터 원천 차단.
+		Coupon coupon = couponRepository.findCouponByIdForPessimisticLock(couponId)
+			.orElseThrow(
+				() -> new ResponseStatusException(COUPON_NOT_FOUND.getStatus(), COUPON_NOT_FOUND.getMessage()));
 
 		if (coupon.getStock() == 0) {
 			coupon.setDeletedAt();
 			throw new ResponseStatusException(EMPTY_COUPON_STOCK.getStatus(), EMPTY_COUPON_STOCK.getMessage());
 		}
 
-		User userById = getUser(authUser);
+		User user = getUser(authUser);
 
-		if (couponHistoryRepository.existsByCouponAndUser(coupon, userById)) {
+		// 쿠폰 발급 내역을 PESSIMISTIC 락을 걸어 조회하여, 중복 발급 여부를 원자적으로 확인
+		if (couponHistoryRepository.findCouponHistoryForPessimistic(coupon, user).isPresent()) {
 			throw new ResponseStatusException(ALREADY_PUBLISHED_COUPON.getStatus(),
 				ALREADY_PUBLISHED_COUPON.getMessage());
 		}
 
 		coupon.publishCoupon();
 
-		CouponHistory couponHistory = new CouponHistory(userById, coupon);
+		couponRepository.save(coupon);
 
-		CouponHistory saveCouponHistory = couponHistoryRepository.save(couponHistory);
+		CouponHistory couponHistory = new CouponHistory(user, coupon);
 
-		return CouponHistoryResponseDto.of(saveCouponHistory);
+		CouponHistory savedHistory = couponHistoryRepository.save(couponHistory);
+
+		return CouponHistoryResponseDto.of(savedHistory);
 	}
 
-	@Transactional
-	public void useCoupon(Long couponId, User user) {
-		List<CouponHistory> couponHistories = couponHistoryRepository.findByCouponAndUser(getCoupon(couponId), user);
-		if (couponHistories.isEmpty()) {
-			throw new ResponseStatusException(COUPON_NOT_FOUND.getStatus(), COUPON_NOT_FOUND.getMessage());
+	// 3. 분산 락 (Distributed Lock)
+	// Lettuce
+	public CouponHistoryResponseDto publishCouponDistributed(AuthUser authUser, Long couponId) {
+		try {
+			lockManager.executeWithDistributedLock(couponId,
+				() -> couponPublishService.checkHasCouponAndPublish(authUser, couponId));
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new ResponseStatusException(FAILED_TO_GAIN_LOCK.getStatus(), FAILED_TO_GAIN_LOCK.getMessage());
 		}
-		if (couponHistories.size() > 1) {
-			throw new ResponseStatusException(ALREADY_PUBLISHED_COUPON.getStatus(),
-				ALREADY_PUBLISHED_COUPON.getMessage());
+
+		CouponHistory couponHistory = couponPublishService.getCouponHistory(authUser, couponId);
+
+		return CouponHistoryResponseDto.of(couponHistory);
+	}
+
+	// 4. 공정 락 (Fair Lock)
+	// RedissonClient
+	public CouponHistoryResponseDto publishCouponFair(AuthUser authUser, Long couponId) {
+		try {
+			lockManager.executeWithFairLock(couponId,
+				() -> couponPublishService.checkHasCouponAndPublish(authUser, couponId));
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new ResponseStatusException(FAILED_TO_GAIN_LOCK.getStatus(), FAILED_TO_GAIN_LOCK.getMessage());
 		}
-		if (!couponHistories.get(0).getHasCoupon()) {
-			throw new ResponseStatusException(AlREADY_USED_COUPON.getStatus(), AlREADY_USED_COUPON.getMessage());
-		}
-		couponHistories.get(0).useCoupon();
+
+		CouponHistory couponHistory = couponPublishService.getCouponHistory(authUser, couponId);
+
+		return CouponHistoryResponseDto.of(couponHistory);
 	}
 
 	private User getUser(AuthUser authUser) {
@@ -149,5 +189,17 @@ public class CouponService {
 		return couponRepository.findCouponById(couponId)
 			.orElseThrow(
 				() -> new ResponseStatusException(COUPON_NOT_FOUND.getStatus(), COUPON_NOT_FOUND.getMessage()));
+	}
+
+	@Transactional
+	public void useCoupon(Long couponId, User user) {
+		CouponHistory couponHistory = couponHistoryRepository.findByCouponAndUser(getCoupon(couponId), user);
+		if (couponHistory == null) {
+			throw new ResponseStatusException(COUPON_NOT_FOUND.getStatus(), COUPON_NOT_FOUND.getMessage());
+		}
+		if (!couponHistory.getHasCoupon()) {
+			throw new ResponseStatusException(AlREADY_USED_COUPON.getStatus(), AlREADY_USED_COUPON.getMessage());
+		}
+		couponHistory.useCoupon();
 	}
 }
