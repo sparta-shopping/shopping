@@ -1,21 +1,6 @@
 package com.example.shopping.domain.product.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.util.ReflectionTestUtils;
-
 import com.example.shopping.common.dto.AuthUser;
-import com.example.shopping.config.JpaTestConfig;
 import com.example.shopping.domain.product.category.Category;
 import com.example.shopping.domain.product.dto.request.ProductCreateRequestDto;
 import com.example.shopping.domain.product.dto.request.ProductUpdateRequestDto;
@@ -26,6 +11,19 @@ import com.example.shopping.domain.product.repository.ProductTouchMDRepository;
 import com.example.shopping.domain.user.entity.User;
 import com.example.shopping.domain.user.repository.UserRepository;
 import com.example.shopping.domain.user.role.UserRole;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ProductServiceTest {

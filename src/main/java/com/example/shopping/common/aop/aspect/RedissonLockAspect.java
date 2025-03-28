@@ -23,28 +23,34 @@ import static com.example.shopping.common.exception.ErrorCode.FAILED_TO_GAIN_LOC
 public class RedissonLockAspect {
 
 	private final RedissonClient redissonClient;
+	private final TransactionalAspect transactionalAspect;
 	
 	@Around("@annotation(com.example.shopping.common.aop.annotation.RedissonLock)")
 	public Object redissonLock(ProceedingJoinPoint joinPoint) throws Throwable {
 		MethodSignature signature = (MethodSignature) joinPoint.getSignature();
 		Method method = signature.getMethod();
-		RedissonLock redissonLock = method.getAnnotation(RedissonLock.class);
+		final RedissonLock redissonLock = method.getAnnotation(RedissonLock.class);
 		
 		String key = createKey(signature.getParameterNames(), joinPoint.getArgs(), redissonLock.value());
-		
 		RLock rLock = redissonClient.getFairLock(key);
-		rLock.lock(redissonLock.waitTime(), redissonLock.timeUnit());
 		
 		try {
-			log.info("Redisson Lock Key = {}", key);
-			return joinPoint.proceed();
+			boolean available = rLock.tryLock(
+				redissonLock.waitTime(), redissonLock.leaseTime(), redissonLock.timeUnit()
+			);
+			if(!available) {
+				log.warn("Redisson Get Lock Timeout");
+			}
 			
+			log.info("Redisson Lock Key = {}", key);
+			return transactionalAspect.proceed(joinPoint);
+//			return joinPoint.proceed();
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			throw new ResponseStatusException(FAILED_TO_GAIN_LOCK.getStatus(), "Interrupted while waiting for lock.");
 		
 		} finally {
-			if(rLock.isHeldByCurrentThread()) {
+			if(rLock.isLocked() && rLock.isHeldByCurrentThread()) {
 				rLock.unlock();
 				log.info("Redisson unLock Key = {}", key);
 			} else {
@@ -54,14 +60,14 @@ public class RedissonLockAspect {
 	}
 	
 	private String createKey(String[] paramNames, Object[] args, String key) {
-		StringBuilder resultKey = new StringBuilder(key);
+		String resultKey = key;
 		
 		for (int i = 0; i < paramNames.length; i++) {
 			if (paramNames[i].equals(key)) {
-				resultKey.append(args[i].toString());
+				resultKey += args[i];
 				break;
 			}
 		}
-		return resultKey.toString();
+		return resultKey;
 	}
 }

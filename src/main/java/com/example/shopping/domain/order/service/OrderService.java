@@ -67,7 +67,6 @@ public class OrderService {
 				}
 				log.info("Product {} stock before decrease: {}", product.getId(), product.getStock());
 				product.decreaseStock(quantity);
-				productRepository.save(product);
 				log.info("Product {} stock after decrease: {}", product.getId(), product.getStock());
 				return new OrderItem(productId, quantity, quantity * product.getPrice());
 		}).toList();
