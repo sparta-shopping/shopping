@@ -86,45 +86,6 @@ public class ProductRepositoryQueryImpl implements ProductRepositoryQuery {
 		return new PageImpl<>(products, pageable, total == null ? 0L : total);
 	}
 
-	@Override
-	@Transactional
-	public void bulkInsert(List<String> names) {
-		// 1. SQLTemplates 초기화 (MySQL 8.x 기준)
-		SQLTemplates templates = MySQLTemplates.builder()
-				.quote()
-				.build();
-
-		// 2. SQL Table 메타데이터 정의
-		RelationalPathBase<Object> productTable = new RelationalPathBase<>(
-				Object.class,
-				"products",  // 실제 테이블 이름
-				"public",     // 스키마
-				"products"    // 별칭
-		);
-
-		// 3. 컬럼 매핑 (실제 DB 컬럼명과 일치해야 함)
-		StringPath nameColumn = Expressions.stringPath(productTable, "name");
-
-		// 4. 배치 삽입 실행
-		try (Connection conn = entityManager.unwrap(Connection.class)) {
-			SQLInsertClause insert = new SQLInsertClause(
-					conn,
-					new Configuration(templates),
-					productTable
-			);
-
-			for (String name : names) {
-				insert.set(nameColumn, name)
-						.addBatch();
-			}
-
-			// 500개 단위로 배치 실행
-			insert.setBatchToBulk(true);
-			insert.execute();
-		} catch (SQLException e) {
-			throw new RuntimeException("배치 삽입 실패", e);
-		}
-	}
 
 
 }

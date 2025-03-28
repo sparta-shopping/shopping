@@ -99,13 +99,5 @@ public class AuthService {
         return newAccessToken;
     }
 
-    public String reCreateAccessToken(RefreshToken refreshToken) {
-        Long userId = refreshToken.getId();
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new ResponseStatusException(USER_NOT_FOUND.getStatus(), USER_NOT_FOUND.getMessage()));
-        String newAccessToken = jwtUtil.createAccessToken(user.getId(), user.getEmail(), user.getRole(), user.getName(), user.getAddress());
 
-        refreshTokenRepository.save(new RefreshToken(userId, newAccessToken, refreshToken.getRefreshToken()));
-        return newAccessToken;
-    }
 }

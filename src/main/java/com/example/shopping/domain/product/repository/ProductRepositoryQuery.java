@@ -22,7 +22,5 @@ public interface ProductRepositoryQuery {
 		Category category, String keyword, Pageable pageable
 	);
 
-	@Transactional
-	void bulkInsert(@Param("name") List<String> names);
 }
 

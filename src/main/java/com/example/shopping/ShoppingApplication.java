@@ -11,7 +11,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @EnableJpaAuditing
 @SpringBootApplication
-@EnableJpaRepositories(basePackages = "com.example.shopping.domain.user.repository")
 public class ShoppingApplication {
 	
 	public static void main(String[] args) {

@@ -33,7 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final AuthService authService;
+    private final UserRepository userRepository;
 
 
     @Override
@@ -41,6 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
+
     ) throws IOException, ServletException {
 
         String authorizationHeader = request.getHeader("Authorization");
@@ -73,7 +74,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private void handleExpiredToken(HttpServletResponse response, String expiredToken) throws IOException {
         RefreshToken refreshToken = getRefreshToken(expiredToken);
         if (refreshToken != null && jwtUtil.validateRefreshToken(refreshToken.getRefreshToken())) {
-            String newAccessToken = authService.reCreateAccessToken(refreshToken);
+            String newAccessToken = reCreateAccessToken(refreshToken); // AuthService 메서드 대신 내부 메서드 사용
             response.setHeader("New-Access-Token", newAccessToken);
             response.setStatus(HttpServletResponse.SC_OK);
         } else {
@@ -97,7 +98,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return refreshTokenRepository.findByAccessToken(accessToken).orElse(null);
     }
 
+    public String reCreateAccessToken(RefreshToken refreshToken) {
+        Long userId = refreshToken.getId();
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new ResponseStatusException(USER_NOT_FOUND.getStatus(), USER_NOT_FOUND.getMessage()));
+        String newAccessToken = jwtUtil.createAccessToken(user.getId(), user.getEmail(), user.getRole(), user.getName(), user.getAddress());
 
-
+        refreshTokenRepository.save(new RefreshToken(userId, newAccessToken, refreshToken.getRefreshToken()));
+        return newAccessToken;
+    }
 
 }
