@@ -27,7 +27,7 @@ public class LockManagerImpl implements LockManager {
 		RLock lock = redissonClient.getFairLock(lockKey);
 
 		// 10초동안 락 획득 재시도, TTL 3초(3초 후 락 해체)
-		boolean gain = lock.tryLock(10, 10, TimeUnit.SECONDS);
+		boolean gain = lock.tryLock(10, 3, TimeUnit.SECONDS);
 		if (gain) {
 			try {
 				task.run();
@@ -47,7 +47,7 @@ public class LockManagerImpl implements LockManager {
 		long startTime = System.currentTimeMillis();
 		boolean gain = false;
 		while (System.currentTimeMillis() - startTime < 10_000) {
-			Boolean result = redisUtil.setIfAbsent(lockKey, "LOCK", 10, TimeUnit.SECONDS);
+			Boolean result = redisUtil.setIfAbsent(lockKey, "LOCK", 3, TimeUnit.SECONDS);
 			if (result != null && result) {
 				gain = true;
 				break;

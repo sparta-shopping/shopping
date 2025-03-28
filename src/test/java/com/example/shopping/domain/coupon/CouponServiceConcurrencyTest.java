@@ -2,7 +2,11 @@ package com.example.shopping.domain.coupon;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -76,6 +80,8 @@ public class CouponServiceConcurrencyTest {
 		// 새로운 사용자 이메일에 사용할 카운터
 		AtomicInteger userCounter = new AtomicInteger(0);
 
+		Queue<Integer> procedure = new LinkedList<>();
+
 		long startTime = System.currentTimeMillis();
 
 		for (int i = 0; i < attempts; i++) {
@@ -84,13 +90,13 @@ public class CouponServiceConcurrencyTest {
 					// 매번 고유한 사용자 생성
 					int userIdNumber = userCounter.incrementAndGet();
 					String email = "user" + userIdNumber + "@example.com";
-					User newUser = new User(email, "password", "User " + userIdNumber, "Test", UserRole.ROLE_ADMIN);
+					User newUser = new User(email, "password", "User" + userIdNumber + " ", "Test", UserRole.ROLE_ADMIN);
 					newUser = userRepository.save(newUser);
 					AuthUser newAuthUser = new AuthUser(newUser.getId(), newUser.getEmail(), newUser.getRole());
-
 					// 쿠폰 발급 시도 (쿠폰 stock은 내부에서 1씩 감소)
 					couponService.publishCoupon(newAuthUser, testCoupon.getId());
 					successCount.incrementAndGet();
+					procedure.add(userIdNumber);
 				} catch (Exception e) {
 					// 재고 소진이나 중복 발급 등으로 실패하면 예외가 발생할 수 있음
 					System.out.println("Exception: " + e.getMessage());
@@ -119,6 +125,10 @@ public class CouponServiceConcurrencyTest {
 		System.out.println("최종 쿠폰 수량: " + finalStock);
 		System.out.println("발급받은 유저 수: " + couponHistoryCount);
 		System.out.println("테스트 실행 시간: " + durationInSeconds + "초");
+		System.out.println("쿠폰 발급밭은 순서: ");
+		while (!procedure.isEmpty()) {
+			System.out.print(" " + procedure.poll() + " ");
+		}
 
 		// 초기 쿠폰 stock이 10이라면 최대 10건만 발급되어야 합니다.
 		assertEquals(0, finalStock, "모든 쿠폰이 소진되어야 합니다.");
@@ -135,6 +145,8 @@ public class CouponServiceConcurrencyTest {
 		// 새로운 사용자 이메일에 사용할 카운터
 		AtomicInteger userCounter = new AtomicInteger(0);
 
+		Queue<Integer> procedure = new LinkedList<>();
+
 		long startTime = System.currentTimeMillis();
 
 		for (int i = 0; i < attempts; i++) {
@@ -143,12 +155,13 @@ public class CouponServiceConcurrencyTest {
 					// 매번 고유한 사용자 생성
 					int userIdNumber = userCounter.incrementAndGet();
 					String email = "user" + userIdNumber + "@example.com";
-					User newUser = new User(email, "password", "User " + userIdNumber, "Test", UserRole.ROLE_ADMIN);
+					User newUser = new User(email, "password", "User" + userIdNumber + " ", "Test", UserRole.ROLE_ADMIN);
 					newUser = userRepository.save(newUser);
 					AuthUser newAuthUser = new AuthUser(newUser.getId(), newUser.getEmail(), newUser.getRole());
 					// 쿠폰 발급 시도 (쿠폰 stock은 내부에서 1씩 감소)
 					couponService.publishCouponPessimistic(newAuthUser, testCoupon.getId());
 					successCount.incrementAndGet();
+					procedure.add(userIdNumber);
 				} catch (Exception e) {
 					// 재고 소진이나 중복 발급 등으로 실패하면 예외가 발생할 수 있음
 					System.out.println("Exception: " + e.getMessage());
@@ -177,6 +190,10 @@ public class CouponServiceConcurrencyTest {
 		System.out.println("최종 쿠폰 수량: " + finalStock);
 		System.out.println("발급받은 유저 수: " + couponHistoryCount);
 		System.out.println("테스트 실행 시간: " + durationInSeconds + "초");
+		System.out.println("쿠폰 발급밭은 순서: ");
+		while (!procedure.isEmpty()) {
+			System.out.print(" " + procedure.poll() + " ");
+		}
 
 		// 초기 쿠폰 stock이 10이라면 최대 10건만 발급되어야 합니다.
 		assertEquals(0, finalStock, "모든 쿠폰이 소진되어야 합니다.");
@@ -193,6 +210,8 @@ public class CouponServiceConcurrencyTest {
 		// 새로운 사용자 이메일에 사용할 카운터
 		AtomicInteger userCounter = new AtomicInteger(0);
 
+		Queue<Integer> procedure = new LinkedList<>();
+
 		long startTime = System.currentTimeMillis();
 
 		for (int i = 0; i < attempts; i++) {
@@ -201,12 +220,13 @@ public class CouponServiceConcurrencyTest {
 					// 매번 고유한 사용자 생성
 					int userIdNumber = userCounter.incrementAndGet();
 					String email = "user" + userIdNumber + "@example.com";
-					User newUser = new User(email, "password", "User " + userIdNumber, "Test", UserRole.ROLE_ADMIN);
+					User newUser = new User(email, "password", "User" + userIdNumber + " ", "Test", UserRole.ROLE_ADMIN);
 					newUser = userRepository.save(newUser);
 					AuthUser newAuthUser = new AuthUser(newUser.getId(), newUser.getEmail(), newUser.getRole());
 					// 쿠폰 발급 시도 (쿠폰 stock은 내부에서 1씩 감소)
 					couponService.publishCouponDistributed(newAuthUser, testCoupon.getId());
 					successCount.incrementAndGet();
+					procedure.add(userIdNumber);
 				} catch (Exception e) {
 					// 재고 소진이나 중복 발급 등으로 실패하면 예외가 발생할 수 있음
 					System.out.println("Exception: " + e.getMessage());
@@ -235,6 +255,10 @@ public class CouponServiceConcurrencyTest {
 		System.out.println("최종 쿠폰 수량: " + finalStock);
 		System.out.println("발급받은 유저 수: " + couponHistoryCount);
 		System.out.println("테스트 실행 시간: " + durationInSeconds + "초");
+		System.out.println("쿠폰 발급밭은 순서: ");
+		while (!procedure.isEmpty()) {
+			System.out.print(" " + procedure.poll() + " ");
+		}
 
 		// 초기 쿠폰 stock이 10이라면 최대 10건만 발급되어야 합니다.
 		assertEquals(0, finalStock, "모든 쿠폰이 소진되어야 합니다.");
@@ -251,6 +275,8 @@ public class CouponServiceConcurrencyTest {
 		// 새로운 사용자 이메일에 사용할 카운터
 		AtomicInteger userCounter = new AtomicInteger(0);
 
+		Queue<Integer> procedure = new LinkedList<>();
+
 		long startTime = System.currentTimeMillis();
 
 		for (int i = 0; i < attempts; i++) {
@@ -259,12 +285,13 @@ public class CouponServiceConcurrencyTest {
 					// 매번 고유한 사용자 생성
 					int userIdNumber = userCounter.incrementAndGet();
 					String email = "user" + userIdNumber + "@example.com";
-					User newUser = new User(email, "password", "User " + userIdNumber, "Test", UserRole.ROLE_ADMIN);
+					User newUser = new User(email, "password", "User" + userIdNumber + " ", "Test", UserRole.ROLE_ADMIN);
 					newUser = userRepository.save(newUser);
 					AuthUser newAuthUser = new AuthUser(newUser.getId(), newUser.getEmail(), newUser.getRole());
 					// 쿠폰 발급 시도 (쿠폰 stock은 내부에서 1씩 감소)
 					couponService.publishCouponFair(newAuthUser, testCoupon.getId());
 					successCount.incrementAndGet();
+					procedure.add(userIdNumber);
 				} catch (Exception e) {
 					// 재고 소진이나 중복 발급 등으로 실패하면 예외가 발생할 수 있음
 					System.out.println("Exception: " + e.getMessage());
@@ -293,6 +320,10 @@ public class CouponServiceConcurrencyTest {
 		System.out.println("최종 쿠폰 수량: " + finalStock);
 		System.out.println("발급받은 유저 수: " + couponHistoryCount);
 		System.out.println("테스트 실행 시간: " + durationInSeconds + "초");
+		System.out.println("쿠폰 발급밭은 순서: ");
+		while (!procedure.isEmpty()) {
+			System.out.print(" " + procedure.poll() + " ");
+		}
 
 		// 초기 쿠폰 stock이 10이라면 최대 10건만 발급되어야 합니다.
 		assertEquals(0, finalStock, "모든 쿠폰이 소진되어야 합니다.");
