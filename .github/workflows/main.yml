@@ -1,0 +1,41 @@
+name: Deploy Spring Boot with Docker
+
+on:
+  push:
+    branches:
+      - main  # main 브랜치에 푸시될 때 실행
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v3
+
+      - name: JDK 17 설치
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Gradle 권한 설정
+        run: chmod +x gradlew
+
+      - name: Gradle 빌드
+        run: ./gradlew build
+
+      - name: Docker 로그인 (AWS ECR)
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Docker 이미지 빌드
+        run: |
+          docker build -t my-app .
+
+      - name: Docker 이미지 태깅 (ECR 업로드용)
+        run: |
+          docker tag my-app:latest <AWS_ACCOUNT_ID>.dkr.ecr.<AWS_REGION>.amazonaws.com/my-app:latest
+
+      - name: AWS ECR에 Docker 이미지 푸시
+        run: |
+          docker push <AWS_ACCOUNT_ID>.dkr.ecr.<AWS_REGION>.amazonaws.com/my-app:latest
