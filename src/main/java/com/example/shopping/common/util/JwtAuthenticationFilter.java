@@ -35,7 +35,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
 
-
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -82,7 +81,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 
-
     private void setAuthentication(Claims claims) {
         Long userId = Long.valueOf(claims.getSubject());
         String email = claims.get("email", String.class);
@@ -92,7 +90,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         JwtAuthenticationToken authenticationToken = new JwtAuthenticationToken(authUser);
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     }
-
 
     public RefreshToken getRefreshToken(String accessToken) {
         return refreshTokenRepository.findByAccessToken(accessToken).orElse(null);

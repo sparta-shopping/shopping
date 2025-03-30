@@ -1,11 +1,7 @@
 package com.example.shopping.common.util;
 
-
-import com.example.shopping.common.exception.ServerException;
 import com.example.shopping.domain.auth.entity.RefreshToken;
 import com.example.shopping.domain.auth.repository.RefreshTokenRepository;
-import com.example.shopping.domain.user.entity.User;
-import com.example.shopping.domain.user.repository.UserRepository;
 import com.example.shopping.domain.user.role.UserRole;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -16,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
-
 
 import java.security.Key;
 import java.util.Base64;
@@ -82,7 +77,6 @@ public class JwtUtil {
         return refreshToken;
     }
 
-
     public String substringToken(String token) {
         if (StringUtils.hasText(token) && token.startsWith(BEARER_PREFIX)) {
             return token.substring(7);
@@ -118,4 +112,5 @@ public class JwtUtil {
     private Key getSigningKey() {
         return key; // @PostConstruct로 초기화된 key를 반환
     }
+
 }

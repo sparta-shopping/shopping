@@ -12,14 +12,16 @@ import com.example.shopping.domain.user.repository.UserRepository;
 import com.example.shopping.domain.user.role.UserRole;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import static com.example.shopping.common.exception.ErrorCode.*;
+import static com.example.shopping.common.exception.ErrorCode.EXPIRED_TOKEN;
+import static com.example.shopping.common.exception.ErrorCode.INVALID_PASSWORD;
+import static com.example.shopping.common.exception.ErrorCode.TOKEN_NOT_FOUND;
+import static com.example.shopping.common.exception.ErrorCode.USER_EMAIL_DUPLICATION;
+import static com.example.shopping.common.exception.ErrorCode.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor

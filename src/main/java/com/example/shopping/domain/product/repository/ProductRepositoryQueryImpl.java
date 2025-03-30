@@ -86,6 +86,4 @@ public class ProductRepositoryQueryImpl implements ProductRepositoryQuery {
 		return new PageImpl<>(products, pageable, total == null ? 0L : total);
 	}
 
-
-
 }
