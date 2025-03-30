@@ -36,6 +36,9 @@ public class Product extends TimeStamped {
 		this.imageUrl = imageUrl;
 	}
 
+	public static Product create(String name, Category category, Integer price, Integer stock, String imageUrl) {
+		return new Product(name, category, price, stock, imageUrl);
+	}
 	public void updateProduct(ProductUpdateRequestDto dto) {
 		this.name = dto.getName();
 		this.category = dto.getCategory();

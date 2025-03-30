@@ -19,6 +19,7 @@ public class RefreshToken {
     @Indexed
     private String accessToken;
 
+    @Indexed
     private String refreshToken;
 
     public RefreshToken(Long id, String accessToken, String refreshToken) {

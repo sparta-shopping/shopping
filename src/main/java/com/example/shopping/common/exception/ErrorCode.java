@@ -24,6 +24,7 @@ public enum ErrorCode {
     // 토큰 관련 예외 코드
     TOKEN_NOT_FOUND("해당 토큰을 찾을 수 없습니다.", NOT_FOUND),
     INVALID_TOKEN("유효하지 않은 토큰입니다.", UNAUTHORIZED),
+    EXPIRED_TOKEN("만료된 토큰입니다.", UNAUTHORIZED),
 	
     // 주문 관련 예외 코드
     ORDER_NOT_FOUND("해당 주문을 찾을 수 없습니다.", NOT_FOUND),

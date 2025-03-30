@@ -31,81 +31,81 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class OrderServiceTest {
-	
+
 	@InjectMocks
 	private OrderService orderService;
-	
+
 	@Mock
 	private OrderRepository orderRepository;
-	
+
 	@Mock
 	private CartService cartService;
-	
+
 	@Mock
 	private ProductRepository productRepository;
-	
+
 	@Mock
 	private CouponRepository couponRepository;
-	
+
 	@Mock
 	private UserRepository userRepository;
-	
+
 	private Long userId;
 	private CreateOrderRequestDto createOrderRequestDto;
-	
+
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
 		userId = 1L;
 		createOrderRequestDto = new CreateOrderRequestDto(1L);
 	}
-	
+
 	@Test
 	void 쿠폰이_있는_주문을_저장한다() {
 		// Given
 		User user = new User("a@a.com","1", "a", "1a", UserRole.ROLE_USER);
 		ReflectionTestUtils.setField(user, "id", userId);
-		
+
 		Product product = new Product("Test Product", Category.PANTS, 100, 10, "Description");
 		ReflectionTestUtils.setField(product, "id", 1L);
-		
+
 		GetCartResponseDto cartItem = GetCartResponseDto.of(userId, product, 2);
 		List<GetCartResponseDto> cartItems = List.of(cartItem);
-		
+
 		Coupon coupon = new Coupon();
 		ReflectionTestUtils.setField(coupon, "id", 1L);
 		ReflectionTestUtils.setField(coupon, "discountAmount", 50);
-		
+
 		when(userRepository.findUserById(userId)).thenReturn(Optional.of(user));
 		when(cartService.getCarts(userId)).thenReturn(cartItems);
 		when(productRepository.findProductById(1L)).thenReturn(Optional.of(product));
 		when(couponRepository.findCouponById(1L)).thenReturn(Optional.of(coupon));
-		
+
 		// When
 		CreateOrderResponseDto response = orderService.saveOrder(userId, createOrderRequestDto);
-		
+
 		// Then
 		verify(cartService).deleteCart(userId);
 		verify(orderRepository).save(any(Order.class));
-		
+
 		assertEquals(1, response.getOrderItems().size());
 		assertEquals(1L, response.getOrderItems().get(0).getProductId());
 		assertEquals(2, response.getOrderItems().get(0).getQuantity());
 		assertEquals(150, response.getTotalPrice());
 	}
-	
+
 	@Test
 	void 쿠폰이_없는_주문을_저장한다() {
 		// Given
 		User user = new User("a@a.com","1", "a", "1a", UserRole.ROLE_USER);
 		ReflectionTestUtils.setField(user, "id", userId);
-		
+
 		Product product = new Product("Test Product", Category.PANTS, 100, 10, "Description");
 		ReflectionTestUtils.setField(product, "id", 1L);
-		
+
 		GetCartResponseDto cartItem = GetCartResponseDto.of(userId, product, 3);
 		List<GetCartResponseDto> cartItems = List.of(cartItem);
-		
+
 		when(userRepository.findUserById(userId)).thenReturn(Optional.of(user));
 		when(cartService.getCarts(userId)).thenReturn(cartItems);
 		when(productRepository.findProductById(1L)).thenReturn(Optional.of(product));

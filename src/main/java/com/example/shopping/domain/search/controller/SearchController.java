@@ -1,9 +1,15 @@
 package com.example.shopping.domain.search.controller;
 
+import com.example.shopping.common.dto.PageResponseDto;
+import com.example.shopping.domain.product.dto.response.ProductResponseDto;
+import com.example.shopping.domain.search.dto.response.PopularSearchResponseDto;
 import com.example.shopping.domain.search.dto.response.SearchResponseDto;
+import com.example.shopping.domain.search.entity.Search;
 import com.example.shopping.domain.search.service.SearchService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,10 +26,23 @@ public class SearchController {
     private final SearchService searchService;
 
     @GetMapping
-    public ResponseEntity<Page<SearchResponseDto>> search(
+    public ResponseEntity<PageResponseDto<SearchResponseDto>> searchProducts(
             @RequestParam String keyword,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(searchService.searchProduct(keyword, page, size));
+            @PageableDefault(page = 1, size = 10) Pageable pageable
+    ) {
+        //검색 시 키워드 저장하기
+        searchService.saveSearchKeyword(keyword);
+
+        Pageable convertPageable = PageRequest.of(pageable.getPageNumber() - 1, pageable.getPageSize());
+        return ResponseEntity.ok(searchService.findProducts( keyword, convertPageable));
     }
+
+    @GetMapping("/popular")
+    public ResponseEntity<List<PopularSearchResponseDto>> getPopularSearches(
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        List<PopularSearchResponseDto> popularSearches = searchService.findPopularSearches(size);
+        return ResponseEntity.ok(popularSearches);
+    }
+
 }
