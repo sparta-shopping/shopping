@@ -14,6 +14,4 @@ public interface SearchRepository extends JpaRepository<Search, Long>,SearchRepo
 
     Optional<Search> findByKeyword(String keyword);
 
-
-
 }

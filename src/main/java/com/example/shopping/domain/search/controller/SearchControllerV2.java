@@ -21,11 +21,12 @@ public class SearchControllerV2 {
 
     private final SearchServiceV2 searchServiceV2;
 
-    @GetMapping("/api/v2/search")
+    @GetMapping
     public ResponseEntity<PageResponseDto<SearchResponseDto>> searchProductsV2(
             @RequestParam String keyword,
             @PageableDefault(page = 1, size = 10) Pageable pageable
     ) {
+
         Pageable convertPageable = PageRequest.of(pageable.getPageNumber() - 1, pageable.getPageSize());
         return ResponseEntity.ok(searchServiceV2.findProductsV2( keyword, convertPageable));
     }

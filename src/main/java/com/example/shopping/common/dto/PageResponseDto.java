@@ -2,19 +2,19 @@ package com.example.shopping.common.dto;
 
 import java.util.List;
 
+import lombok.*;
 import org.springframework.data.domain.Page;
 
-import lombok.Getter;
-
 @Getter
+@NoArgsConstructor
 public class PageResponseDto<T> {
 
 	// 제네릭으로 자동 형 고정.
-	private final List<T> content;
-	private final int page;
-	private final int size;
-	private final long totalElements;
-	private final int totalPages;
+	private List<T> content;
+	private int page;
+	private int size;
+	private long totalElements;
+	private int totalPages;
 
 	public PageResponseDto(Page<T> entity) {
 		this.content = entity.getContent();

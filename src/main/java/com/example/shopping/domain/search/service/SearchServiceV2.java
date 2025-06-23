@@ -19,6 +19,7 @@ public class SearchServiceV2 {
     private final SearchRepository searchRepository;
     private final RedisTemplate<String, Object> redisTemplate;
 
+    //고려해야할 상황: 캐시만 적용할게 아니라, 다른 부분도 고려해야함.
     @Cacheable(value = "searchResults", key = "#keyword", cacheManager = "redisCacheManager")
     @Transactional(readOnly = true)
     public PageResponseDto<SearchResponseDto> findProductsV2(String keyword, Pageable pageable) {
@@ -26,7 +27,5 @@ public class SearchServiceV2 {
 
         return new PageResponseDto<>(products);
     }
-
-    
 
 }

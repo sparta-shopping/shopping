@@ -33,7 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final UserRepository userRepository;
+    private final UserRepository userRepository; //기존엔 AuthService를 주입했었음.
 
     @Override
     protected void doFilterInternal(
@@ -44,11 +44,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws IOException, ServletException {
 
         String authorizationHeader = request.getHeader("Authorization");
+        log.info("Authorization Header: {}", authorizationHeader);
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             String jwt = jwtUtil.substringToken(authorizationHeader);
             try {
                 Claims claims = jwtUtil.extractClaims(jwt);
+                log.info("Extracted JWT: {}", jwt);
 
                 if (SecurityContextHolder.getContext().getAuthentication() == null) {
                     setAuthentication(claims);

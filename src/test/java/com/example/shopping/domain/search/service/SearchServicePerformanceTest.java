@@ -2,15 +2,20 @@ package com.example.shopping.domain.search.service;
 
 
 import com.example.shopping.common.dto.PageResponseDto;
+import com.example.shopping.common.util.*;
 import com.example.shopping.domain.search.dto.response.SearchResponseDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.test.context.bean.override.mockito.*;
 
 @SpringBootTest
 public class SearchServicePerformanceTest {
+
+    @MockitoBean
+    private JwtUtil jwtUtil;
 
     @Autowired
     private SearchService searchService;

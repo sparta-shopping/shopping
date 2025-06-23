@@ -14,15 +14,16 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @EnableCaching
 public class RedisCacheConfig {
 
-    @Bean("redisCacheManager")
-    public RedisCacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory) {
-        RedisCacheConfiguration cacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
-                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()))
-                .entryTtl(java.time.Duration.ofMinutes(60)); // 캐시 TTL 설정
+	@Bean("redisCacheManager")
+	public RedisCacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory) {
+		RedisCacheConfiguration cacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
+			.serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
+			.serializeValuesWith(
+				RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()))
+			.entryTtl(java.time.Duration.ofMinutes(60)); // 캐시 TTL 설정
 
-        return RedisCacheManager.builder(redisConnectionFactory)
-                .cacheDefaults(cacheConfiguration)
-                .build();
-    }
+		return RedisCacheManager.builder(redisConnectionFactory)
+			.cacheDefaults(cacheConfiguration)
+			.build();
+	}
 }

@@ -1,15 +1,15 @@
 package com.example.shopping.domain.search.dto.response;
 
 import com.example.shopping.domain.search.entity.Search;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 @Getter
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 public class SearchResponseDto {
 
-    private final Long productId;
-    private final String keyword;
+    private Long productId;
+    private String keyword;
 
     public static SearchResponseDto of(Search search) {
         return new SearchResponseDto(
